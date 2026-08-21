@@ -77,6 +77,9 @@
   @keyframes vLineGrow { from { width: 0; } to { width: 64px; } }
   @keyframes vRise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
   @keyframes vFadeSoft { from { opacity: 0; } to { opacity: 1; } }
+  /* Carrusel que se desplaza pero sin barra de scroll visible. */
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   }
@@ -357,7 +360,7 @@
           </button>
         </div>
       </div>
-      <div ref="{{ sliderRef }}" style="display:flex;gap:clamp(14px,2vw,28px);overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;padding:4px clamp(20px,5vw,64px);-webkit-overflow-scrolling:touch">
+      <div ref="{{ sliderRef }}" class="no-scrollbar" style="display:flex;gap:clamp(14px,2vw,28px);overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;padding:4px clamp(20px,5vw,64px);-webkit-overflow-scrolling:touch">
         <sc-for list="{{ newest }}" as="p" hint-placeholder-count="0">
           <article data-newest-card onMouseEnter="{{ p.enter }}" onMouseLeave="{{ p.leave }}" style="flex:0 0 clamp(230px,26vw,320px);scroll-snap-align:start">
             <div style="position:relative;overflow:hidden;background:#F8F7F4;aspect-ratio:4/5">
@@ -1313,7 +1316,49 @@ class Component extends DCLogic {
     cancelAnimationFrame(this.rafId);
     clearTimeout(this.revealSweep);
     if (this._waves) { this._waves.dispose(); this._waves = null; }
+    if (this._naStop) { this._naStop(); this._naStop = null; }
     this.revealAll();
+  }
+  setupNewestAutoplay(el) {
+    // Autoplay del carrusel "Recién llegados": avanza una tarjeta y hace loop al final.
+    // Pausa al pasar el mouse / tocar, cuando sale de viewport o la pestaña se oculta.
+    if (this._naStop) { this._naStop(); this._naStop = null; }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const st = { hovering: false, visible: true, page: !document.hidden };
+    const step = () => {
+      if (!el.isConnected) { clearInterval(timer); return; }
+      if (!(st.visible && st.page && !st.hovering)) return;
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 4) return;
+      if (el.scrollLeft >= max - 8) {
+        el.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        const card = el.querySelector('[data-newest-card]');
+        const dx = card ? card.getBoundingClientRect().width + 20 : el.clientWidth * 0.7;
+        el.scrollBy({ left: dx, behavior: 'smooth' });
+      }
+    };
+    const timer = setInterval(step, 3200);
+    const onEnter = () => { st.hovering = true; };
+    const onLeave = () => { st.hovering = false; };
+    const onDown = () => { st.hovering = true; };
+    const onUp = () => { setTimeout(() => { st.hovering = false; }, 2500); };
+    el.addEventListener('pointerenter', onEnter);
+    el.addEventListener('pointerleave', onLeave);
+    el.addEventListener('pointerdown', onDown);
+    el.addEventListener('pointerup', onUp);
+    let io = null;
+    try { io = new IntersectionObserver(([e]) => { st.visible = e.isIntersecting; }, { threshold: 0.2 }); io.observe(el); } catch (err) {}
+    const onVis = () => { st.page = !document.hidden; };
+    document.addEventListener('visibilitychange', onVis);
+    this._naStop = () => {
+      clearInterval(timer); if (io) io.disconnect();
+      document.removeEventListener('visibilitychange', onVis);
+      el.removeEventListener('pointerenter', onEnter);
+      el.removeEventListener('pointerleave', onLeave);
+      el.removeEventListener('pointerdown', onDown);
+      el.removeEventListener('pointerup', onUp);
+    };
   }
   setupStagger(el) {
     // Entrada escalonada de las tarjetas de "Recién llegados" al entrar en viewport
@@ -1884,7 +1929,7 @@ class Component extends DCLogic {
       arrowPrevRef: (el) => { if (el && el !== this._arrowPrev) { this._arrowPrev = el; el.addEventListener('click', (e) => { e.preventDefault(); this.selStep(-1); }); this.updateArrows(); } },
       arrowNextRef: (el) => { if (el && el !== this._arrowNext) { this._arrowNext = el; el.addEventListener('click', (e) => { e.preventDefault(); this.selStep(1); }); this.updateArrows(); } },
       newest: PRODUCTS.filter((x) => x.isNew).concat(PRODUCTS.filter((x) => !x.isNew).slice(0, 2)).map((x) => this.decorate(x)),
-      sliderRef: (el) => { this.slider = el; },
+      sliderRef: (el) => { if (!el) return; this.slider = el; if (!el._autoplayBound) { el._autoplayBound = true; this.setupNewestAutoplay(el); } },
       slidePrev: () => { if (this.slider) this.slider.scrollBy({ left: -this.slider.clientWidth * 0.7, behavior: 'smooth' }); },
       slideNext: () => { if (this.slider) this.slider.scrollBy({ left: this.slider.clientWidth * 0.7, behavior: 'smooth' }); },
 
