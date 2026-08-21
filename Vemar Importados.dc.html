@@ -1325,8 +1325,11 @@ class Component extends DCLogic {
     this.revealAll();
   }
   mountWaves(el, opts) {
-    if (!el) { if (this._waves) { this._waves.dispose(); this._waves = null; } return; }
-    if (el._wavesInit) return;
+    // Ignorar llamadas con null: el framework re-ejecuta los refs en cada render
+    // (sobre todo el catálogo, que re-renderiza al pasar el mouse por los productos).
+    // Destruir en null + el guard _wavesInit dejaba el canvas en blanco. Solo creamos
+    // una vez por elemento y disponemos la instancia previa al montar una nueva ruta.
+    if (!el || el._wavesInit) return;
     el._wavesInit = true;
     if (this._waves) { this._waves.dispose(); this._waves = null; }
     this._waves = createGradientWaves(el, opts || {
