@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+  html { -webkit-font-smoothing: antialiased; background: #171717; overscroll-behavior-y: none; }
+  body { margin: 0; background: #FFFFFF; color: #171717; font-family: 'Jost', 'Helvetica Neue', Helvetica, sans-serif; overscroll-behavior-y: none; }
+  * { box-sizing: border-box; }
+  a { color: #171717; text-decoration: none; }
+  a:hover { color: #B9A078; }
+  input, select, textarea, button { font-family: inherit; font-size: inherit; color: inherit; }
+  ::selection { background: #E9E7E2; }
+  /* Acento caligráfico para etiquetas destacadas (los títulos siguen en serif). */
+  .script-accent { font-family: 'Pinyon Script', 'Playfair Display', cursive !important; text-transform: none !important; letter-spacing: 0.01em !important; font-weight: 400 !important; font-size: clamp(26px, 3vw, 40px) !important; line-height: 1 !important; }
+  /* Header transparente sobre el hero (texto blanco); sólido al bajar. */
+  header[data-solid] a, header[data-solid] button, header[data-solid] span, header[data-solid] svg { transition: color .45s ease, background-color .45s ease, stroke .45s ease; }
+  header[data-solid="0"] { background: transparent !important; border-bottom-color: transparent !important; box-shadow: none !important; }
+  header[data-solid="0"] a, header[data-solid="0"] button, header[data-solid="0"] span, header[data-solid="0"] svg { color: #FFFFFF !important; }
+  header[data-solid="0"] [style*="background:#171717"] { background: #FFFFFF !important; }
+  header[data-solid="0"] [style*="border-radius"] { color: #171717 !important; }
+  /* El desplegable de Joyería tiene fondo blanco propio: su texto siempre oscuro. */
+  header[data-solid="0"] [data-megapanel] a,
+  header[data-solid="0"] [data-megapanel] button,
+  header[data-solid="0"] [data-megapanel] span,
+  header[data-solid="0"] [data-megapanel] svg { color: #171717 !important; }
+  header[data-solid="0"] [data-megapanel] [style*="background:#171717"] { background: #171717 !important; }
+  /* Card Curtain Reveal: la imagen es una cortina que se levanta y revela el contenido. */
+  .curtain-card { position: relative; overflow: hidden; }
+  .curtain-card .curtain-img { transition: transform 1s cubic-bezier(.22,1,.36,1); will-change: transform; }
+  .curtain-card .curtain-body { opacity: 0; transform: translateY(22px); transition: opacity .85s ease .12s, transform .85s cubic-bezier(.22,1,.36,1) .12s; }
+  .curtain-card .curtain-hint { transition: opacity .5s ease, transform .8s cubic-bezier(.22,1,.36,1); }
+  .curtain-card:hover .curtain-img, .curtain-card.is-open .curtain-img { transform: translateY(-101%); }
+  .curtain-card:hover .curtain-body, .curtain-card.is-open .curtain-body { opacity: 1; transform: none; }
+  .curtain-card:hover .curtain-hint, .curtain-card.is-open .curtain-hint { opacity: 0; transform: translateY(-8px); }
+  @media (prefers-reduced-motion: reduce) { .curtain-card .curtain-img, .curtain-card .curtain-body, .curtain-card .curtain-hint { transition: none !important; } }
+  /* ScrollExpand (React Bits, portado a vanilla): el frame se expande a pantalla completa con el scroll. */
+  .se { position: relative; width: 100%; }
+  .se__track { position: relative; width: 100%; }
+  .se__stage { position: sticky; top: 0; width: 100%; overflow: hidden; --se-title-size: 4rem; }
+  .se__frame { position: absolute; inset: 0; clip-path: inset(8% 10% 8% 10% round 0px); will-change: clip-path; }
+  .se__media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; will-change: transform; transform-origin: center; user-select: none; -webkit-user-drag: none; }
+  .se__scrim { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(130% 120% at 50% 50%, rgba(0,0,0,.6) 0%, rgba(0,0,0,.4) 55%, rgba(0,0,0,.6) 100%); opacity: 0; }
+  .se__overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6%; opacity: 0; pointer-events: none; will-change: opacity, transform; }
+  .se__title { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0 6%; text-align: center; font-family: 'Playfair Display', serif; font-size: var(--se-title-size); font-weight: 300; letter-spacing: -0.01em; line-height: 1.03; color: #FFFFFF; text-shadow: 0 2px 34px rgba(0,0,0,.9), 0 1px 8px rgba(0,0,0,.7); background: radial-gradient(60% 45% at 50% 50%, rgba(0,0,0,.45), rgba(0,0,0,0) 75%); pointer-events: none; will-change: opacity, transform; }
+  .se__hint { position: absolute; left: 0; right: 0; bottom: 1.5rem; text-align: center; font-size: 0.72rem; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(255,255,255,.65); pointer-events: none; will-change: opacity, transform; }
+  /* Colecciones: paneles que se expanden al pasar el cursor. */
+  .coll { display: flex; flex-wrap: wrap; }
+  .coll__panel { position: relative; flex: 1 1 380px; min-height: min(84vh,760px); overflow: hidden; display: block; text-decoration: none; transition: flex-grow .85s cubic-bezier(.22,1,.36,1); }
+  .coll__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.3s cubic-bezier(.22,1,.36,1); }
+  .coll__line { display: block; height: 1px; width: 26px; background: #B9A078; margin-bottom: 20px; transition: width .6s cubic-bezier(.22,1,.36,1); }
+  .coll__arrow { display: inline-block; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+  @media (min-width: 860px) {
+    .coll:hover .coll__panel { flex-grow: .82; }
+    .coll:hover .coll__panel:hover { flex-grow: 1.5; }
+    .coll__panel:hover .coll__img { transform: scale(1.06); }
+    .coll__panel:hover .coll__line { width: 70px; }
+    .coll__panel:hover .coll__arrow { transform: translateX(6px); }
+  }
+  @keyframes vHeroZoom { from { transform: scale(1.02); } to { transform: scale(1.14); } }
+  @keyframes vFadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes vSlideRight { from { transform: translateX(100%); } to { transform: none; } }
+  @keyframes vSlideLeft { from { transform: translateX(-100%); } to { transform: none; } }
+  @keyframes vDropDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</helmet>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<g id="vemar-mark">
+  <circle cx="100" cy="100" r="94" fill="none" stroke="currentColor" stroke-width="5"></circle>
+  <g fill="none" stroke="currentColor" stroke-width="4.5" stroke-linejoin="round" transform="translate(0 -13)">
+    <path d="M24 100 L54 50 L146 50 L176 100 L100 188 Z"></path>
+    <path d="M24 100 H176"></path>
+    <path d="M54 50 L70 100 M146 50 L130 100 M100 50 L70 100 M100 50 L130 100 M100 50 V38"></path>
+    <path d="M84 100 L100 72 L116 100"></path>
+    <path d="M58 100 L100 188 M142 100 L100 188 M86 100 L100 188 M114 100 L100 188"></path>
+  </g>
+</g>
+</defs></svg>
+
+<div style="min-height:100vh;background:#FFFFFF;overflow-x:clip">
+
+  <header ref="{{ headerRef }}" data-solid="1" style="position:sticky;top:0;z-index:60;background:#FFFFFF;border-bottom:1px solid #E9E7E2;transition:background-color .45s ease,border-color .45s ease,box-shadow .6s cubic-bezier(.22,1,.36,1)" style-hover="">
+    <div style="max-width:1440px;margin:0 auto;padding:0 clamp(18px,4vw,52px);height:clamp(70px,8vw,92px);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px">
+
+      <nav style="display:flex;align-items:center;gap:clamp(14px,2.4vw,34px);justify-self:start">
+        <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openMenu }}" aria-label="Abrir menú" style="background:none;border:none;padding:8px 0;cursor:pointer;display:flex;flex-direction:column;gap:5px;width:26px">
+            <span style="display:block;height:1px;width:22px;background:#171717"></span>
+            <span style="display:block;height:1px;width:22px;background:#171717"></span>
+            <span style="display:block;height:1px;width:14px;background:#171717"></span>
+          </button>
+        </sc-if>
+        <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+          <a href="#inicio" onClick="{{ goHome }}" style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:400;padding:4px 0;border-bottom:1px solid transparent;transition:border-color .4s ease,color .4s ease" style-hover="border-bottom-color:#B9A078;color:#171717">Inicio</a>
+          <div onMouseEnter="{{ openMega }}" onMouseLeave="{{ closeMega }}" style="position:relative;display:flex;align-items:center">
+            <a href="#joyeria" onClick="{{ goCatalog }}" style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:400;padding:4px 0;border-bottom:1px solid transparent;transition:border-color .4s ease,color .4s ease" style-hover="border-bottom-color:#B9A078;color:#171717">Joyería</a>
+          </div>
+          <a href="#colecciones" onClick="{{ goCollections }}" style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:400;padding:4px 0;border-bottom:1px solid transparent;transition:border-color .4s ease" style-hover="border-bottom-color:#B9A078">Colecciones</a>
+        </sc-if>
+      </nav>
+
+      <a href="#inicio" onClick="{{ goHome }}" aria-label="Vemar Importados — inicio" style="justify-self:center;display:flex;flex-direction:column;align-items:center;gap:3px;color:#171717">
+        <svg viewBox="0 0 200 200" style="width:clamp(26px,3.2vw,34px);height:clamp(26px,3.2vw,34px);display:block;color:#171717"><use href="#vemar-mark"></use></svg>
+        <span style="font-size:clamp(13px,1.5vw,16px);letter-spacing:0.34em;font-weight:500;line-height:1;padding-left:0.34em">VEMAR</span>
+        <span style="width:100%;height:1px;background:#171717"></span>
+        <span style="font-size:6.5px;letter-spacing:0.3em;color:#333333;line-height:1;padding-left:0.3em">VEMAR IMPORTADOS</span>
+      </a>
+
+      <nav style="display:flex;align-items:center;gap:clamp(14px,2.2vw,30px);justify-self:end">
+        <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+          <a href="#nosotros" onClick="{{ goAbout }}" style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:400;padding:4px 0;border-bottom:1px solid transparent;transition:border-color .4s ease" style-hover="border-bottom-color:#B9A078">Nosotros</a>
+          <a href="#contacto" onClick="{{ goContact }}" style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:400;padding:4px 0;border-bottom:1px solid transparent;transition:border-color .4s ease" style-hover="border-bottom-color:#B9A078">Contacto</a>
+        </sc-if>
+        <button onClick="{{ openSearch }}" aria-label="Buscar" style="background:none;border:none;padding:6px;cursor:pointer;display:flex;color:#171717;transition:color .4s ease" style-hover="color:#B9A078">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5 L21 21"></path></svg>
+        </button>
+        <button onClick="{{ openCart }}" aria-label="Ver carrito" style="background:none;border:none;padding:6px;cursor:pointer;display:flex;align-items:center;gap:7px;color:#171717;transition:color .4s ease" style-hover="color:#B9A078">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 7h16l-1.4 13.2H5.4Z"></path><path d="M8.6 7V5.2A3.4 3.4 0 0 1 12 1.8a3.4 3.4 0 0 1 3.4 3.4V7"></path></svg>
+          <span style="font-size:10.5px;letter-spacing:0.08em;min-width:16px;height:16px;border-radius:8px;background:#171717;color:#FFFFFF;display:flex;align-items:center;justify-content:center;padding:0 4px;transition:transform .5s cubic-bezier(.22,1,.36,1);transform:{{ badgeTransform }}">{{ cartCount }}</span>
+        </button>
+      </nav>
+    </div>
+
+    <sc-if value="{{ megaOpen }}" hint-placeholder-val="{{ false }}">
+      <div data-megapanel onMouseEnter="{{ openMega }}" onMouseLeave="{{ closeMega }}" style="position:absolute;left:0;right:0;top:100%;background:#FFFFFF;border-bottom:1px solid #E9E7E2;box-shadow:0 24px 40px -30px rgba(23,23,23,.18);animation:vDropDown .5s cubic-bezier(.22,1,.36,1) both">
+        <div style="max-width:1440px;margin:0 auto;padding:44px clamp(18px,4vw,52px) 52px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:44px">
+          <div>
+            <p style="margin:0 0 20px;font-size:9.5px;letter-spacing:0.28em;text-transform:uppercase;color:#B9A078">Categorías</p>
+            <div style="display:grid;gap:13px">
+              <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="5">
+                <a href="#joyeria" onClick="{{ cat.go }}" onMouseEnter="{{ cat.enterImg }}" style="font-family:'Playfair Display',serif;font-size:19px;font-weight:400;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">{{ cat.name }}</a>
+              </sc-for>
+            </div>
+          </div>
+          <div>
+            <p style="margin:0 0 20px;font-size:9.5px;letter-spacing:0.28em;text-transform:uppercase;color:#B9A078">Líneas</p>
+            <div style="display:grid;gap:13px">
+              <a href="#colecciones" onClick="{{ goEsencial }}" style="font-family:'Playfair Display',serif;font-size:19px;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">Vemar Esencial</a>
+              <a href="#colecciones" onClick="{{ goSignature }}" style="font-family:'Playfair Display',serif;font-size:19px;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">Vemar Signature</a>
+              <a href="#joyeria" onClick="{{ goNuevos }}" style="font-family:'Playfair Display',serif;font-size:19px;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">Recién llegados</a>
+            </div>
+          </div>
+          <a href="#joyeria" onClick="{{ goCatalog }}" style="display:block;position:relative;overflow:hidden;background:#F8F7F4">
+            <img ref="{{ megaImgRef }}" src="uploads/anillos.png" alt="Categorías Vemar" style="width:100%;height:200px;object-fit:cover;object-position:center 45%;display:block;transition:opacity .4s ease,transform 1.2s cubic-bezier(.22,1,.36,1)" style-hover="transform:scale(1.06)">
+            <span style="position:absolute;left:18px;bottom:16px;color:#FFFFFF;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.6)">Ver todo el catálogo</span>
+          </a>
+        </div>
+      </div>
+    </sc-if>
+  </header>
+
+  <!-- ══════════ HOME ══════════ -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <main id="inicio">
+
+    <section style="position:relative;overflow:hidden;min-height:100vh;height:100dvh;margin-top:calc(-1 * clamp(70px,8vw,92px));display:flex;align-items:center;background:#141414">
+      <video ref="{{ bgVideoRef }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" preload="auto" poster="uploads/hero-poster.jpg" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%">
+        <source src="uploads/hero-web.mp4" type="video/mp4">
+      </video>
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,14,14,.8) 0%,rgba(14,14,14,.55) 40%,rgba(14,14,14,.18) 72%,rgba(14,14,14,.05) 100%)"></div>
+      <div style="position:relative;width:100%;padding:clamp(48px,7vw,110px) clamp(24px,6vw,92px)">
+        <div style="max-width:560px">
+          <p data-reveal style="margin:0 0 22px;font-size:10px;letter-spacing:0.34em;text-transform:uppercase;color:#E8D9BE">Nueva colección</p>
+          <h1 data-reveal style="margin:0;font-family:'Pinyon Script','Playfair Display',cursive;font-weight:400;font-size:clamp(42px,5.4vw,78px);line-height:1.1;letter-spacing:0;color:#FFFFFF;text-wrap:pretty">Detalles que permanecen</h1>
+          <p data-reveal style="margin:28px 0 0;font-size:15.5px;line-height:1.75;color:#ECEAE5;max-width:420px;font-weight:300">Joyas seleccionadas para acompañar tus momentos más especiales.</p>
+          <div data-reveal style="display:flex;flex-wrap:wrap;align-items:center;gap:28px;margin-top:44px">
+            <a href="#joyeria" onClick="{{ goCatalog }}" style="display:inline-block;padding:16px 34px;background:#FFFFFF;color:#171717;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;transition:background .45s ease,color .45s ease" style-hover="background:#B9A078;color:#FFFFFF">Descubrir la colección</a>
+            <a href="#seleccion" style="font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;color:#FFFFFF;padding-bottom:5px;border-bottom:1px solid #FFFFFF;transition:border-color .45s ease,color .45s ease" style-hover="color:#E8D9BE;border-bottom-color:#E8D9BE">Ver destacados</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="colecciones" class="coll" style="margin-top:clamp(48px,7vh,100px);background:#141414">
+
+      <a href="#joyeria" onClick="{{ goEsencial }}" class="coll__panel" aria-label="Explorar Vemar Esencial">
+        <img class="coll__img" src="Colecciones/Esencial/Cadena%20Sadusa%205mm%20mas%20cruz%20500%20mil.jpeg" alt="Vemar Esencial" draggable="false" style="object-position:center 38%">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(12,12,12,.78) 0%,rgba(12,12,12,.2) 46%,rgba(12,12,12,0) 74%)"></div>
+        <div style="position:absolute;inset:auto 0 0 0;padding:clamp(34px,4vw,64px)">
+          <span class="coll__line"></span>
+          <p style="margin:0 0 2px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(30px,3vw,44px);line-height:1;color:#EFE3C9">Línea</p>
+          <h3 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(32px,4vw,58px);color:#FFFFFF;letter-spacing:0.01em;line-height:1.04">Vemar Esencial</h3>
+          <p style="margin:16px 0 24px;color:#EDEBE6;font-size:14.5px;line-height:1.7;max-width:420px;font-weight:300">Diseños versátiles, delicados y contemporáneos para acompañarte todos los días.</p>
+          <span style="display:inline-flex;align-items:center;gap:11px;color:#FFFFFF;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase">Explorar colección
+            <svg class="coll__arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#joyeria" onClick="{{ goSignature }}" class="coll__panel" aria-label="Explorar Vemar Signature">
+        <img class="coll__img" src="Colecciones/Signature/Rosario%20480.000%20gs.jpeg" alt="Vemar Signature" draggable="false" style="object-position:center 38%">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(12,12,12,.8) 0%,rgba(12,12,12,.24) 46%,rgba(12,12,12,0) 74%)"></div>
+        <div style="position:absolute;inset:auto 0 0 0;padding:clamp(34px,4vw,64px)">
+          <span class="coll__line"></span>
+          <p style="margin:0 0 2px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(30px,3vw,44px);line-height:1;color:#EFE3C9">Línea</p>
+          <h3 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(32px,4vw,58px);color:#FFFFFF;letter-spacing:0.01em;line-height:1.04">Vemar Signature</h3>
+          <p style="margin:16px 0 24px;color:#EDEBE6;font-size:14.5px;line-height:1.7;max-width:420px;font-weight:300">Piezas seleccionadas por su presencia, terminaciones y carácter excepcional.</p>
+          <span style="display:inline-flex;align-items:center;gap:11px;color:#FFFFFF;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase">Explorar colección
+            <svg class="coll__arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg>
+          </span>
+        </div>
+      </a>
+    </section>
+
+    <section id="seleccion" ref="{{ pinRef }}" style="position:relative;background:#FFFFFF;border-top:1px solid #F0EEE9;padding:clamp(56px,8vh,110px) 0 clamp(60px,9vh,120px);overflow:hidden">
+      <div style="display:flex;flex-direction:column;gap:clamp(28px,4vh,52px)">
+        <div style="padding:0 clamp(20px,5vw,64px);display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px">
+          <div style="max-width:720px">
+            <p class="script-accent" style="margin:0 0 6px;color:#B9A078">Piezas seleccionadas</p>
+            <h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(28px,3.6vw,48px);line-height:1.06">Selección Vemar</h2>
+            <p style="margin:12px 0 0;font-size:13.5px;line-height:1.65;color:#333333;font-weight:300;max-width:540px">Joyas elegidas para acompañar momentos inolvidables.</p>
+          </div>
+          <div style="display:flex;gap:12px;flex:0 0 auto">
+            <button ref="{{ arrowPrevRef }}" aria-label="Anterior" style="width:50px;height:50px;border:1px solid #E9E7E2;background:#FFFFFF;color:#171717;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .4s ease,color .4s ease,opacity .3s ease" style-hover="border-color:#171717;color:#B9A078">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14.5 5 8 12l6.5 7"></path></svg>
+            </button>
+            <button ref="{{ arrowNextRef }}" aria-label="Siguiente" style="width:50px;height:50px;border:1px solid #E9E7E2;background:#FFFFFF;color:#171717;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .4s ease,color .4s ease,opacity .3s ease" style-hover="border-color:#171717;color:#B9A078">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M9.5 5 16 12l-6.5 7"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <div ref="{{ rowRef }}" style="position:relative;height:{{ rowH }};overflow:hidden;cursor:default;user-select:none;-webkit-user-select:none;touch-action:pan-y">
+          <div style="position:absolute;top:0;left:0;bottom:0;width:clamp(20px,5vw,64px);background:#FFFFFF;z-index:5;pointer-events:none"></div>
+          <div ref="{{ trackRef }}" style="display:flex;align-items:stretch;gap:clamp(10px,1vw,18px);padding:0 clamp(20px,5vw,64px);height:100%;will-change:transform">
+
+            <div data-card style="flex:0 0 auto;width:{{ coverW }};height:100%;position:relative;overflow:hidden;background:#F5F3EF">
+              <a href="#joyeria" onClick="{{ goSignature }}" aria-label="Vemar Signature — explorar la colección" style="position:absolute;inset:0;z-index:3;display:block"></a>
+              <div data-plx style="position:absolute;inset:0;will-change:transform">
+                <img src="images/collar-rosario.jpeg" alt="Vemar Signature" loading="lazy" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:center 38%;transition:transform 1.4s cubic-bezier(.22,1,.36,1)">
+              </div>
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(23,23,23,.66),rgba(23,23,23,.04) 58%)"></div>
+              <div style="position:absolute;inset:auto 0 0 0;z-index:2;padding:clamp(24px,2.4vw,40px)">
+                <p style="margin:0 0 10px;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:#E8D9BE">Portada editorial</p>
+                <p style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(26px,2.6vw,40px);color:#FFFFFF;line-height:1.08">Vemar Signature</p>
+                <p style="margin:12px 0 20px;font-size:13px;line-height:1.7;color:#EDEBE6;font-weight:300;max-width:360px">Piezas con carácter, terminaciones cuidadas y una presencia excepcional.</p>
+                <span style="display:inline-block;padding:13px 26px;border:1px solid rgba(255,255,255,.72);color:#FFFFFF;font-size:9.5px;letter-spacing:0.24em;text-transform:uppercase;transition:background .45s ease,color .45s ease" style-hover="background:#FFFFFF;color:#171717">Explorar la colección</span>
+              </div>
+            </div>
+
+            <sc-for list="{{ curated }}" as="p" hint-placeholder-count="0">
+              <article data-card onMouseEnter="{{ p.enter }}" onMouseLeave="{{ p.leave }}" style="flex:0 0 auto;width:{{ cardW }};height:100%;display:flex;flex-direction:column">
+                <div style="position:relative;flex:1 1 auto;min-height:120px;overflow:hidden;background:#F0EEE9">
+                  <a href="#producto" onClick="{{ p.open }}" aria-label="{{ p.name }}" style="position:absolute;inset:0;display:block;z-index:1"></a>
+                  <div data-plx style="position:absolute;inset:0;will-change:transform">
+                    <img ref="{{ p.imgRef }}" alt="{{ p.name }}" loading="lazy" draggable="false" style="width:100%;height:100%;object-fit:cover">
+                  </div>
+                  <div data-grad style="position:absolute;inset:0;z-index:1;opacity:0;pointer-events:none;transition:opacity .5s ease;background:linear-gradient(to top,rgba(20,20,20,.82) 0%,rgba(20,20,20,.34) 30%,rgba(20,20,20,0) 56%)"></div>
+                  <sc-if value="{{ p.tag }}" hint-placeholder-val="{{ false }}">
+                    <span style="position:absolute;top:14px;left:14px;z-index:2;background:#FFFFFF;color:#1A1A1A;font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;padding:6px 10px">{{ p.tag }}</span>
+                  </sc-if>
+                  <button onClick="{{ p.fav }}" aria-label="Marcar como favorito" style="position:absolute;top:12px;right:12px;z-index:2;background:rgba(255,255,255,.9);border:none;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .4s ease" style-hover="background:#FFFFFF">
+                    <svg width="15" height="15" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.3" style="transition:transform .5s cubic-bezier(.22,1,.36,1);transform:{{ p.favScale }};color:{{ p.favColor }};fill:{{ p.favFill }}"><path d="M12 20.5 4.6 13a4.7 4.7 0 0 1 6.6-6.7l.8.8.8-.8A4.7 4.7 0 0 1 19.4 13Z"></path></svg>
+                  </button>
+                  <div data-overlay style="position:absolute;inset:auto 0 0 0;z-index:2;opacity:0;pointer-events:none;transition:opacity .5s ease;padding:clamp(20px,2vw,30px);display:flex;flex-direction:column;gap:4px">
+                    <p style="margin:0;font-size:8.5px;letter-spacing:0.24em;text-transform:uppercase;color:#E8D9BE">{{ p.line }}</p>
+                    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px">
+                      <a href="#producto" onClick="{{ p.open }}" style="font-family:'Playfair Display',serif;font-size:23px;font-weight:400;line-height:1.2;color:#FFFFFF;transition:color .35s ease" style-hover="color:#E8D9BE">{{ p.name }}</a>
+                      <p style="margin:0;font-size:14px;color:#FFFFFF;white-space:nowrap">{{ p.priceFmt }}</p>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:14px">
+                      <a href="#producto" onClick="{{ p.open }}" style="display:flex;flex-direction:column;gap:6px;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#FFFFFF">Ver producto
+                        <span style="display:block;height:1px;background:#FFFFFF;transition:width .6s cubic-bezier(.22,1,.36,1);width:{{ p.lineW }}"></span>
+                      </a>
+                      <button onClick="{{ p.add }}" aria-label="Agregar al carrito" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.7);color:#FFFFFF;padding:11px 16px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:background .4s ease,color .4s ease,border-color .4s ease" style-hover="background:#FFFFFF;color:#1A1A1A;border-color:#FFFFFF">Agregar al carrito</button>
+                    </div>
+                  </div>
+                </div>
+                <div data-below style="flex:0 0 auto;padding-top:16px;display:flex;flex-direction:column;gap:4px">
+                  <p style="margin:0;font-size:8.5px;letter-spacing:0.24em;text-transform:uppercase;color:#B9A078">{{ p.line }}</p>
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px">
+                    <a href="#producto" onClick="{{ p.open }}" style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;line-height:1.2;color:#1A1A1A;transition:color .35s ease" style-hover="color:#B9A078">{{ p.name }}</a>
+                    <p style="margin:0;font-size:13.5px;color:#1A1A1A;white-space:nowrap">{{ p.priceFmt }}</p>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px">
+                    <a href="#producto" onClick="{{ p.open }}" style="display:flex;flex-direction:column;gap:6px;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#1A1A1A">Ver producto
+                      <span style="display:block;height:1px;background:#171717;transition:width .6s cubic-bezier(.22,1,.36,1);width:{{ p.lineW }}"></span>
+                    </a>
+                    <button onClick="{{ p.add }}" aria-label="Agregar al carrito" style="background:none;border:1px solid #E9E7E2;color:#1A1A1A;padding:11px 16px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:background .4s ease,color .4s ease,border-color .4s ease" style-hover="background:#171717;color:#FFFFFF;border-color:#171717">Agregar al carrito</button>
+                  </div>
+                </div>
+              </article>
+            </sc-for>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-reveal style="background:#F8F7F4">
+      <div ref="{{ curtainRef }}" class="curtain-card" style="width:100%;height:clamp(440px,64vh,620px);background:#141414;color:#FFFFFF">
+
+        <!-- Producto revelado (imagen + info), detrás de la cortina negra -->
+        <div style="position:absolute;inset:0;z-index:1">
+          <img src="uploads/banner.png" alt="Una joya para cada historia" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:center 35%">
+          <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(18,18,18,.78) 0%,rgba(18,18,18,.34) 42%,rgba(18,18,18,0) 72%)"></div>
+        </div>
+        <div style="position:absolute;inset:0;z-index:1;display:flex;align-items:center">
+          <div class="curtain-body" style="padding:clamp(40px,7vw,110px);max-width:600px">
+            <p class="script-accent" style="margin:0 0 10px;color:#E8D9BE">Editorial</p>
+            <h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(30px,4.2vw,58px);line-height:1.06;color:#FFFFFF;text-wrap:pretty">Una joya para cada historia</h2>
+            <p style="margin:24px 0 36px;font-size:15px;line-height:1.75;color:#ECEAE5;max-width:420px;font-weight:300">Piezas elegidas para celebrar vínculos, logros y momentos que merecen permanecer.</p>
+            <a href="#joyeria" onClick="{{ goCatalog }}" style="display:inline-flex;align-items:center;gap:12px;padding:16px 34px;border:1px solid rgba(255,255,255,.75);color:#FFFFFF;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;transition:background .45s ease,color .45s ease,border-color .45s ease" style-hover="background:#FFFFFF;color:#171717;border-color:#FFFFFF">Encontrá la tuya
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17 17 7 M9 7h8v8"></path></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Cortina negra (por defecto): se levanta al pasar el cursor / tocar y revela el producto -->
+        <div class="curtain-img" style="position:absolute;inset:0;z-index:2;background:#141414;display:flex;align-items:center">
+          <div style="padding:clamp(40px,7vw,110px);display:flex;align-items:center;gap:18px">
+            <span style="width:52px;height:52px;border-radius:50%;background:#FFFFFF;color:#171717;display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17 17 7 M9 7h8v8"></path></svg>
+            </span>
+            <span class="script-accent" style="color:#F1EBDD;font-size:clamp(24px,3vw,40px)">Una joya para cada historia</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section style="padding:clamp(72px,9vw,124px) 0;max-width:1440px;margin:0 auto">
+      <div data-reveal style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;padding:0 clamp(20px,5vw,64px);margin-bottom:clamp(30px,4vw,50px)">
+        <div>
+          <p class="script-accent" style="margin:0 0 8px;color:#B9A078">Novedades</p>
+          <h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(28px,3.4vw,44px)">Recién llegados</h2>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button onClick="{{ slidePrev }}" aria-label="Anterior" style="width:44px;height:44px;border:1px solid #E9E7E2;background:#FFFFFF;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .4s ease,color .4s ease" style-hover="border-color:#171717;color:#B9A078">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14.5 5 8 12l6.5 7"></path></svg>
+          </button>
+          <button onClick="{{ slideNext }}" aria-label="Siguiente" style="width:44px;height:44px;border:1px solid #E9E7E2;background:#FFFFFF;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .4s ease,color .4s ease" style-hover="border-color:#171717;color:#B9A078">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M9.5 5 16 12l-6.5 7"></path></svg>
+          </button>
+        </div>
+      </div>
+      <div ref="{{ sliderRef }}" style="display:flex;gap:clamp(14px,2vw,28px);overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;padding:4px clamp(20px,5vw,64px);-webkit-overflow-scrolling:touch">
+        <sc-for list="{{ newest }}" as="p" hint-placeholder-count="0">
+          <article onMouseEnter="{{ p.enter }}" onMouseLeave="{{ p.leave }}" style="flex:0 0 clamp(230px,26vw,320px);scroll-snap-align:start">
+            <div style="position:relative;overflow:hidden;background:#F8F7F4;aspect-ratio:4/5">
+              <a href="#producto" onClick="{{ p.open }}" style="position:absolute;inset:0;display:block">
+                <sc-if value="{{ p.img }}" hint-placeholder-val="{{ false }}">
+                  <img ref="{{ p.imgRef }}" alt="{{ p.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s cubic-bezier(.22,1,.36,1);transform:{{ p.zoom }}">
+                </sc-if>
+                <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}">
+                  <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#F3F1EC 0 9px,#EAE7E1 9px 18px);display:flex;align-items:center;justify-content:center;padding:18px">
+                    <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8C8880;text-align:center;line-height:1.6">{{ p.slot }}</span>
+                  </div>
+                </sc-if>
+              </a>
+            </div>
+            <div style="padding-top:16px;display:flex;flex-direction:column;gap:5px">
+              <p style="margin:0;font-size:9px;letter-spacing:0.24em;text-transform:uppercase;color:#B9A078">{{ p.line }}</p>
+              <a href="#producto" onClick="{{ p.open }}" style="font-family:'Playfair Display',serif;font-size:19px;transition:color .35s ease" style-hover="color:#B9A078">{{ p.name }}</a>
+              <p style="margin:0;font-size:13px;color:#333333">{{ p.priceFmt }}</p>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="border-top:1px solid #E9E7E2;border-bottom:1px solid #E9E7E2;background:#FFFFFF">
+      <div style="max-width:1440px;margin:0 auto;padding:clamp(34px,4vw,52px) clamp(20px,5vw,64px);display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:clamp(24px,3vw,44px)">
+        <div data-reveal style="display:flex;gap:14px;align-items:flex-start">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B9A078" stroke-width="1.1" style="flex:0 0 auto;margin-top:2px"><path d="M2 8h11v9H2z"></path><path d="M13 11h5l3 3v3h-8z"></path><circle cx="6" cy="19" r="2"></circle><circle cx="17" cy="19" r="2"></circle></svg>
+          <div>
+            <p style="margin:0 0 5px;font-size:11.5px;letter-spacing:0.12em;text-transform:uppercase">Envíos a todo Paraguay</p>
+            <p style="margin:0;font-size:12.5px;color:#333333;line-height:1.6;font-weight:300">Coordinamos la entrega en Asunción, Gran Asunción e interior.</p>
+          </div>
+        </div>
+        <div data-reveal style="display:flex;gap:14px;align-items:flex-start">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B9A078" stroke-width="1.1" style="flex:0 0 auto;margin-top:2px"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"></path></svg>
+          <div>
+            <p style="margin:0 0 5px;font-size:11.5px;letter-spacing:0.12em;text-transform:uppercase">Atención personalizada</p>
+            <p style="margin:0;font-size:12.5px;color:#333333;line-height:1.6;font-weight:300">Te acompañamos a elegir la pieza correcta, sin apuros.</p>
+          </div>
+        </div>
+        <div data-reveal style="display:flex;gap:14px;align-items:flex-start">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B9A078" stroke-width="1.1" style="flex:0 0 auto;margin-top:2px"><path d="M12 3l8 4v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7Z"></path></svg>
+          <div>
+            <p style="margin:0 0 5px;font-size:11.5px;letter-spacing:0.12em;text-transform:uppercase">Selección cuidada</p>
+            <p style="margin:0;font-size:12.5px;color:#333333;line-height:1.6;font-weight:300">Revisamos cada pieza antes de que llegue a tus manos.</p>
+          </div>
+        </div>
+        <div data-reveal style="display:flex;gap:14px;align-items:flex-start">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B9A078" stroke-width="1.1" style="flex:0 0 auto;margin-top:2px"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"></path></svg>
+          <div>
+            <p style="margin:0 0 5px;font-size:11.5px;letter-spacing:0.12em;text-transform:uppercase">Compra por WhatsApp</p>
+            <p style="margin:0;font-size:12.5px;color:#333333;line-height:1.6;font-weight:300">Confirmamos disponibilidad y forma de pago con una persona real.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="nosotros-breve" ref="{{ scrollExpandRef }}" class="se" style="background:#141414">
+      <div class="se__track">
+        <div class="se__stage">
+          <div class="se__frame">
+            <img class="se__media" src="uploads/3.png" alt="Sobre Vemar Importados" draggable="false">
+            <div class="se__scrim"></div>
+            <div class="se__overlay">
+              <div style="background:rgba(16,16,16,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);padding:clamp(34px,4.5vw,66px) clamp(30px,5vw,74px);max-width:780px;display:flex;flex-direction:column;align-items:center;text-align:center">
+                <p style="margin:0 0 14px;color:#EFE1C4;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(38px,4.6vw,64px);line-height:1;letter-spacing:0.01em">Sobre Vemar</p>
+                <p style="margin:0;max-width:600px;font-size:clamp(14px,1.5vw,19px);line-height:1.7;color:#FFFFFF;font-weight:400">En Vemar Importados seleccionamos joyas que combinan elegancia, versatilidad y personalidad. Cada pieza es elegida para convertirse en parte de tus momentos y acompañarte mucho más allá de una ocasión.</p>
+                <a href="#nosotros" onClick="{{ goAbout }}" style="margin-top:34px;display:inline-block;padding:16px 36px;background:#FFFFFF;color:#171717;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;transition:background .45s ease,color .45s ease" style-hover="background:#B9A078;color:#FFFFFF">Conocé Vemar</a>
+              </div>
+            </div>
+          </div>
+          <div class="se__title">El detalle transforma lo cotidiano</div>
+          <div class="se__hint">Desplazá para descubrir</div>
+        </div>
+      </div>
+    </section>
+  </main>
+  </sc-if>
+
+  <!-- ══════════ CATÁLOGO ══════════ -->
+  <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
+  <main id="joyeria" style="animation:vFadeIn .6s cubic-bezier(.22,1,.36,1) both">
+    <div style="max-width:1440px;margin:0 auto;padding:clamp(38px,5vw,72px) clamp(20px,5vw,64px) clamp(60px,8vw,110px)">
+      <div style="margin-bottom:clamp(28px,4vw,48px)">
+        <p style="margin:0 0 14px;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:#B9A078">Catálogo</p>
+        <h1 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(32px,4.2vw,56px)">{{ catalogTitle }}</h1>
+        <p style="margin:16px 0 0;font-size:13.5px;color:#333333;font-weight:300">{{ resultsLabel }}</p>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-top:1px solid #E9E7E2;border-bottom:1px solid #E9E7E2;margin-bottom:clamp(26px,3vw,44px)">
+        <button onClick="{{ toggleFilters }}" style="background:none;border:none;padding:6px 0;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:10.5px;letter-spacing:0.22em;text-transform:uppercase;transition:color .4s ease" style-hover="color:#B9A078">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 6h18M6 12h12M10 18h4"></path></svg>
+          {{ filtersLabel }}
+        </button>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#333333">Ordenar</span>
+          <select value="{{ sort }}" onChange="{{ setSort }}" style="border:1px solid #E9E7E2;background:#FFFFFF;padding:10px 14px;font-size:12px;letter-spacing:0.04em;cursor:pointer">
+            <option value="relevancia">Relevancia</option>
+            <option value="novedad">Más recientes</option>
+            <option value="precio-asc">Precio: menor a mayor</option>
+            <option value="precio-desc">Precio: mayor a menor</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:clamp(24px,3vw,52px);align-items:flex-start">
+        <sc-if value="{{ filtersOpen }}" hint-placeholder-val="{{ true }}">
+          <aside style="flex:1 1 210px;max-width:260px;min-width:200px;display:flex;flex-direction:column;gap:34px;animation:vFadeIn .5s ease both">
+            <div>
+              <p style="margin:0 0 16px;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Categoría</p>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <sc-for list="{{ filterCats }}" as="f" hint-placeholder-count="7">
+                  <button onClick="{{ f.set }}" style="background:none;border:none;padding:0;text-align:left;cursor:pointer;font-size:13px;letter-spacing:0.02em;transition:color .35s ease;color:{{ f.color }}" style-hover="color:#B9A078">{{ f.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <p style="margin:0 0 16px;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Colección</p>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <sc-for list="{{ filterLines }}" as="f" hint-placeholder-count="3">
+                  <button onClick="{{ f.set }}" style="background:none;border:none;padding:0;text-align:left;cursor:pointer;font-size:13px;transition:color .35s ease;color:{{ f.color }}" style-hover="color:#B9A078">{{ f.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <p style="margin:0 0 16px;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Precio en guaraníes</p>
+              <div style="display:flex;gap:10px;align-items:center">
+                <input type="number" placeholder="Mínimo" value="{{ priceMin }}" onChange="{{ setPriceMin }}" style="flex:1;min-width:0;border:1px solid #E9E7E2;padding:11px 12px;font-size:12px">
+                <span style="color:#B9A078">—</span>
+                <input type="number" placeholder="Máximo" value="{{ priceMax }}" onChange="{{ setPriceMax }}" style="flex:1;min-width:0;border:1px solid #E9E7E2;padding:11px 12px;font-size:12px">
+              </div>
+            </div>
+            <div>
+              <p style="margin:0 0 16px;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Material</p>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ filterMaterials }}" as="f" hint-placeholder-count="4">
+                  <button onClick="{{ f.set }}" style="cursor:pointer;font-size:11px;letter-spacing:0.08em;padding:9px 14px;transition:all .35s ease;background:{{ f.bg }};color:{{ f.color }};border:1px solid {{ f.border }}">{{ f.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <p style="margin:0 0 16px;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Color</p>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ filterColors }}" as="f" hint-placeholder-count="3">
+                  <button onClick="{{ f.set }}" style="cursor:pointer;font-size:11px;letter-spacing:0.08em;padding:9px 14px;transition:all .35s ease;background:{{ f.bg }};color:{{ f.color }};border:1px solid {{ f.border }}">{{ f.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;border-top:1px solid #E9E7E2;padding-top:24px">
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer">
+                <input type="checkbox" checked="{{ onlyStock }}" onChange="{{ toggleStock }}" style="accent-color:#B9A078;width:15px;height:15px">Solo disponibles
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer">
+                <input type="checkbox" checked="{{ onlyNew }}" onChange="{{ toggleNew }}" style="accent-color:#B9A078;width:15px;height:15px">Novedades
+              </label>
+              <button onClick="{{ clearFilters }}" style="margin-top:8px;background:none;border:none;padding:0;text-align:left;cursor:pointer;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#B9A078;border-bottom:1px solid #E9E7E2;padding-bottom:4px;align-self:flex-start" style-hover="border-bottom-color:#B9A078">Limpiar filtros</button>
+            </div>
+          </aside>
+        </sc-if>
+
+        <div style="flex:999 1 520px;min-width:280px">
+          <sc-if value="{{ hasResults }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:clamp(18px,2.4vw,38px)">
+              <sc-for list="{{ catalogList }}" as="p" hint-placeholder-count="0">
+                <article onMouseEnter="{{ p.enter }}" onMouseLeave="{{ p.leave }}" style="display:flex;flex-direction:column">
+                  <div style="position:relative;overflow:hidden;background:#F8F7F4;aspect-ratio:4/5">
+                    <a href="#producto" onClick="{{ p.open }}" style="position:absolute;inset:0;display:block">
+                      <sc-if value="{{ p.img }}" hint-placeholder-val="{{ false }}">
+                        <img ref="{{ p.imgRef }}" alt="{{ p.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .9s ease,transform 1.4s cubic-bezier(.22,1,.36,1);opacity:{{ p.mainOpacity }};transform:{{ p.zoom }}">
+                        <img ref="{{ p.altRef }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .9s ease,transform 1.4s cubic-bezier(.22,1,.36,1);opacity:{{ p.altOpacity }};transform:{{ p.zoom }}">
+                      </sc-if>
+                      <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}">
+                        <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#F3F1EC 0 9px,#EAE7E1 9px 18px);display:flex;align-items:center;justify-content:center;padding:18px">
+                          <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:#8C8880;text-align:center;line-height:1.6">{{ p.slot }}</span>
+                        </div>
+                      </sc-if>
+                    </a>
+                    <sc-if value="{{ p.tag }}" hint-placeholder-val="{{ false }}">
+                      <span style="position:absolute;top:14px;left:14px;background:#FFFFFF;font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;padding:6px 10px">{{ p.tag }}</span>
+                    </sc-if>
+                    <button onClick="{{ p.fav }}" aria-label="Favorito" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.86);border:none;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+                      <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.3" style="color:{{ p.favColor }};fill:{{ p.favFill }}"><path d="M12 20.5 4.6 13a4.7 4.7 0 0 1 6.6-6.7l.8.8.8-.8A4.7 4.7 0 0 1 19.4 13Z"></path></svg>
+                    </button>
+                    <div style="position:absolute;left:0;right:0;bottom:0;padding:12px;transition:opacity .5s ease,transform .5s ease;opacity:{{ p.ctaOpacity }};transform:{{ p.ctaShift }}">
+                      <button onClick="{{ p.add }}" style="width:100%;padding:13px;background:#FFFFFF;border:1px solid #E9E7E2;font-size:9.5px;letter-spacing:0.22em;text-transform:uppercase;cursor:pointer;transition:background .4s ease,color .4s ease" style-hover="background:#171717;color:#FFFFFF">Agregar al carrito</button>
+                    </div>
+                  </div>
+                  <div style="padding-top:16px;display:flex;flex-direction:column;gap:5px">
+                    <p style="margin:0;font-size:9px;letter-spacing:0.24em;text-transform:uppercase;color:#B9A078">{{ p.line }}</p>
+                    <a href="#producto" onClick="{{ p.open }}" style="font-family:'Playfair Display',serif;font-size:19px;transition:color .35s ease" style-hover="color:#B9A078">{{ p.name }}</a>
+                    <p style="margin:0;font-size:13px;color:#333333">{{ p.priceFmt }}</p>
+                    <p style="margin:0;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:{{ p.stockColor }}">{{ p.stockLabel }}</p>
+                  </div>
+                </article>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:80px 20px;text-align:center;border:1px solid #E9E7E2">
+              <p style="margin:0 0 10px;font-family:'Playfair Display',serif;font-size:24px">No encontramos piezas con esos filtros</p>
+              <p style="margin:0 0 26px;font-size:13.5px;color:#333333;font-weight:300">Probá ampliar el rango de precio o quitar algún filtro.</p>
+              <button onClick="{{ clearFilters }}" style="padding:14px 30px;background:#171717;color:#FFFFFF;border:none;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;cursor:pointer;transition:background .45s ease" style-hover="background:#B9A078">Limpiar filtros</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ══════════ PRODUCTO ══════════ -->
+  <sc-if value="{{ isProduct }}" hint-placeholder-val="{{ false }}">
+  <main id="producto" style="animation:vFadeIn .6s cubic-bezier(.22,1,.36,1) both">
+    <div style="max-width:1440px;margin:0 auto;padding:clamp(22px,3vw,36px) clamp(20px,5vw,64px) clamp(60px,8vw,110px)">
+      <nav style="display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#333333;margin-bottom:clamp(26px,4vw,48px)">
+        <a href="#inicio" onClick="{{ goHome }}" style="color:#333333">Inicio</a><span style="color:#B9A078">/</span>
+        <a href="#joyeria" onClick="{{ goCatalog }}" style="color:#333333">Joyería</a><span style="color:#B9A078">/</span>
+        <span style="color:#171717">{{ product.name }}</span>
+      </nav>
+
+      <div style="display:flex;flex-wrap:wrap;gap:clamp(28px,4vw,72px);align-items:flex-start">
+        <div style="flex:1 1 440px;min-width:280px;display:flex;flex-wrap:wrap-reverse;gap:14px">
+          <div style="flex:0 0 clamp(64px,7vw,86px);display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="0">
+              <button onClick="{{ g.select }}" aria-label="Ver imagen" style="padding:0;cursor:pointer;background:#F8F7F4;aspect-ratio:4/5;overflow:hidden;border:1px solid {{ g.border }};transition:border-color .4s ease">
+                <sc-if value="{{ g.img }}" hint-placeholder-val="{{ false }}">
+                  <img ref="{{ g.imgRef }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+                </sc-if>
+                <sc-if value="{{ g.noImg }}" hint-placeholder-val="{{ true }}">
+                  <div style="width:100%;height:100%;background:repeating-linear-gradient(135deg,#F3F1EC 0 7px,#EAE7E1 7px 14px);display:flex;align-items:center;justify-content:center"><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:7px;color:#8C8880;letter-spacing:0.04em">+</span></div>
+                </sc-if>
+              </button>
+            </sc-for>
+          </div>
+          <div onMouseMove="{{ onZoomMove }}" onMouseLeave="{{ onZoomLeave }}" style="flex:1 1 320px;min-width:260px;position:relative;overflow:hidden;background:#F8F7F4;aspect-ratio:4/5">
+            <sc-if value="{{ activeIsPhoto }}" hint-placeholder-val="{{ false }}">
+              <img ref="{{ activeImageRef }}" alt="{{ product.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);transform:{{ zoomScale }};transform-origin:{{ zoomOrigin }}">
+            </sc-if>
+            <sc-if value="{{ activeIsSlot }}" hint-placeholder-val="{{ true }}">
+              <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#F3F1EC 0 12px,#EAE7E1 12px 24px);display:flex;align-items:center;justify-content:center;padding:28px">
+                <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#8C8880;text-align:center;line-height:1.8">{{ activeSlot }}</span>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="flex:1 1 360px;min-width:280px;max-width:520px">
+          <p style="margin:0 0 14px;font-size:9.5px;letter-spacing:0.28em;text-transform:uppercase;color:#B9A078">{{ product.line }}</p>
+          <h1 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(28px,3.4vw,44px);line-height:1.1">{{ product.name }}</h1>
+          <p style="margin:20px 0 0;font-size:20px;letter-spacing:0.02em;color:#171717">{{ product.priceFmt }}</p>
+          <p style="margin:8px 0 0;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:{{ product.stockColor }}">{{ product.stockLabel }}</p>
+          <p style="margin:24px 0 0;font-size:14.5px;line-height:1.8;color:#333333;font-weight:300">{{ product.description }}</p>
+
+          <div style="margin-top:32px">
+            <p style="margin:0 0 12px;font-size:9.5px;letter-spacing:0.24em;text-transform:uppercase;color:#333333">Variante</p>
+            <div style="display:flex;flex-wrap:wrap;gap:9px">
+              <sc-for list="{{ variants }}" as="v" hint-placeholder-count="3">
+                <button onClick="{{ v.select }}" style="cursor:pointer;font-size:11.5px;letter-spacing:0.06em;padding:11px 18px;transition:all .35s ease;background:{{ v.bg }};color:{{ v.color }};border:1px solid {{ v.border }}">{{ v.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="margin-top:28px;display:flex;flex-wrap:wrap;gap:14px;align-items:stretch">
+            <div style="display:flex;align-items:center;border:1px solid #E9E7E2">
+              <button onClick="{{ decQty }}" aria-label="Restar" style="width:46px;height:52px;background:none;border:none;cursor:pointer;font-size:16px;color:#333333;transition:color .35s ease" style-hover="color:#B9A078">−</button>
+              <span style="min-width:34px;text-align:center;font-size:14px">{{ qty }}</span>
+              <button onClick="{{ incQty }}" aria-label="Sumar" style="width:46px;height:52px;background:none;border:none;cursor:pointer;font-size:16px;color:#333333;transition:color .35s ease" style-hover="color:#B9A078">+</button>
+            </div>
+            <button onClick="{{ addCurrent }}" style="flex:1 1 200px;min-height:52px;background:#171717;color:#FFFFFF;border:none;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;cursor:pointer;transition:background .45s ease" style-hover="background:#B9A078">Agregar al carrito</button>
+          </div>
+          <a href="{{ productWaHref }}" target="_blank" rel="noopener" style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;border:1px solid #171717;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;transition:background .45s ease,color .45s ease" style-hover="background:#171717;color:#FFFFFF">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"></path></svg>
+            Consultar por WhatsApp
+          </a>
+
+          <dl style="margin:40px 0 0;border-top:1px solid #E9E7E2;display:grid;grid-template-columns:auto 1fr">
+            <sc-for list="{{ specs }}" as="s" hint-placeholder-count="6">
+              <dt style="padding:14px 24px 14px 0;border-bottom:1px solid #F0EEE9;font-size:9.5px;letter-spacing:0.2em;text-transform:uppercase;color:#333333;white-space:nowrap">{{ s.k }}</dt>
+              <dd style="margin:0;padding:14px 0;border-bottom:1px solid #F0EEE9;font-size:13.5px;color:#171717;font-weight:300">{{ s.v }}</dd>
+            </sc-for>
+          </dl>
+
+          <div style="margin-top:34px;background:#F8F7F4;padding:26px 28px">
+            <p style="margin:0 0 10px;font-size:9.5px;letter-spacing:0.24em;text-transform:uppercase;color:#B9A078">Cuidados recomendados</p>
+            <p style="margin:0;font-size:13.5px;line-height:1.8;color:#333333;font-weight:300">Guardá la pieza en su estuche, evitá el contacto con perfumes, cloro y cremas. Limpiala con un paño suave y seco después de usarla.</p>
+          </div>
+        </div>
+      </div>
+
+      <section style="margin-top:clamp(64px,8vw,120px)">
+        <h2 style="margin:0 0 clamp(24px,3vw,40px);font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(24px,2.8vw,36px)">También te puede gustar</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:clamp(18px,2.4vw,34px)">
+          <sc-for list="{{ related }}" as="p" hint-placeholder-count="0">
+            <article onMouseEnter="{{ p.enter }}" onMouseLeave="{{ p.leave }}">
+              <a href="#producto" onClick="{{ p.open }}" style="display:block;position:relative;overflow:hidden;background:#F8F7F4;aspect-ratio:4/5">
+                <sc-if value="{{ p.img }}" hint-placeholder-val="{{ false }}">
+                  <img ref="{{ p.imgRef }}" alt="{{ p.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s cubic-bezier(.22,1,.36,1);transform:{{ p.zoom }}">
+                </sc-if>
+                <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}">
+                  <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#F3F1EC 0 9px,#EAE7E1 9px 18px);display:flex;align-items:center;justify-content:center;padding:16px">
+                    <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:#8C8880;text-align:center;line-height:1.6">{{ p.slot }}</span>
+                  </div>
+                </sc-if>
+              </a>
+              <div style="padding-top:14px;display:flex;flex-direction:column;gap:4px">
+                <p style="margin:0;font-size:9px;letter-spacing:0.24em;text-transform:uppercase;color:#B9A078">{{ p.line }}</p>
+                <a href="#producto" onClick="{{ p.open }}" style="font-family:'Playfair Display',serif;font-size:18px">{{ p.name }}</a>
+                <p style="margin:0;font-size:12.5px;color:#333333">{{ p.priceFmt }}</p>
+              </div>
+            </article>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ══════════ NOSOTROS ══════════ -->
+  <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
+  <main id="nosotros" style="animation:vFadeIn .6s cubic-bezier(.22,1,.36,1) both">
+    <section style="max-width:920px;margin:0 auto;padding:clamp(60px,8vw,128px) clamp(20px,5vw,64px) clamp(36px,5vw,60px);text-align:center">
+      <p style="margin:0 0 14px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(30px,3.4vw,48px);line-height:1;color:#B9A078">Nosotros</p>
+      <h1 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(34px,4.8vw,66px);line-height:1.05;letter-spacing:-0.01em;text-wrap:pretty">Joyas elegidas una por una</h1>
+      <p style="margin:26px auto 0;max-width:600px;font-size:15.5px;line-height:1.85;color:#4A4A4A;font-weight:300">Vemar Importados nació en Paraguay con una idea simple: que una joya no tiene que ser inalcanzable para ser especial. Importamos y seleccionamos piezas por su terminación, su peso y la forma en que se ven puestas.</p>
+    </section>
+
+    <section style="padding:0 clamp(16px,4vw,52px)">
+      <div style="position:relative;overflow:hidden;height:min(66vh,600px);background:#141414">
+        <img src="uploads/banner.png" alt="Vemar Importados" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:center 42%;transition:transform 1.6s cubic-bezier(.22,1,.36,1)" style-hover="transform:scale(1.05)">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(12,12,12,.55),rgba(12,12,12,0) 46%)"></div>
+        <div style="position:absolute;left:0;bottom:0;padding:clamp(26px,3vw,46px);display:flex;align-items:center;gap:14px">
+          <span style="width:34px;height:1px;background:#E8D9BE;display:block"></span>
+          <span style="font-size:11px;letter-spacing:0.26em;text-transform:uppercase;color:#FFFFFF">Asunción · Paraguay</span>
+        </div>
+      </div>
+    </section>
+
+    <section style="max-width:1200px;margin:0 auto;padding:clamp(58px,7vw,116px) clamp(20px,5vw,64px);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(34px,4vw,72px)">
+      <div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+          <span style="font-family:'Playfair Display',serif;font-size:22px;color:#B9A078">01</span>
+          <span style="flex:1;height:1px;background:#E9E7E2"></span>
+        </div>
+        <h2 style="margin:0 0 14px;font-family:'Playfair Display',serif;font-weight:400;font-size:27px;line-height:1.1">Cómo elegimos</h2>
+        <p style="margin:0;font-size:14px;line-height:1.85;color:#4A4A4A;font-weight:300">Trabajamos con proveedores que conocemos. Revisamos broches, uniones y baño antes de publicar una pieza, y no listamos nada que no usaríamos nosotros.</p>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+          <span style="font-family:'Playfair Display',serif;font-size:22px;color:#B9A078">02</span>
+          <span style="flex:1;height:1px;background:#E9E7E2"></span>
+        </div>
+        <h2 style="margin:0 0 14px;font-family:'Playfair Display',serif;font-weight:400;font-size:27px;line-height:1.1">Cómo comprás</h2>
+        <p style="margin:0;font-size:14px;line-height:1.85;color:#4A4A4A;font-weight:300">Armás tu pedido en el sitio y lo cerramos por WhatsApp. Ahí confirmamos disponibilidad, forma de pago y envío o retiro, con una persona del equipo.</p>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+          <span style="font-family:'Playfair Display',serif;font-size:22px;color:#B9A078">03</span>
+          <span style="flex:1;height:1px;background:#E9E7E2"></span>
+        </div>
+        <h2 style="margin:0 0 14px;font-family:'Playfair Display',serif;font-weight:400;font-size:27px;line-height:1.1">Dónde estamos</h2>
+        <p style="margin:0;font-size:14px;line-height:1.85;color:#4A4A4A;font-weight:300">Atendemos desde Asunción y enviamos a todo Paraguay. Coordinamos entregas en Gran Asunción y despachos al interior por encomienda.</p>
+      </div>
+    </section>
+  </main>
+  </sc-if>
+
+  <!-- ══════════ CONTACTO ══════════ -->
+  <sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+  <main id="contacto-page" style="position:relative;overflow:hidden;animation:vFadeIn .6s cubic-bezier(.22,1,.36,1) both">
+    <img src="uploads/3.png" aria-hidden="true" alt="" style="position:absolute;top:36%;left:clamp(-260px,-12vw,-90px);transform:translateY(-50%);width:min(90vw,860px);height:auto;opacity:.08;pointer-events:none;z-index:0">
+    <section style="position:relative;z-index:1;max-width:920px;margin:0 auto;padding:clamp(60px,8vw,128px) clamp(20px,5vw,64px) clamp(30px,4vw,48px);text-align:center">
+      <p style="margin:0 0 14px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(30px,3.4vw,48px);line-height:1;color:#B9A078">Contacto</p>
+      <h1 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(34px,4.8vw,66px);line-height:1.05;letter-spacing:-0.01em;text-wrap:pretty">Hablemos de tu próxima joya</h1>
+      <p style="margin:26px auto 0;max-width:560px;font-size:15.5px;line-height:1.85;color:#4A4A4A;font-weight:300">Escribinos por el medio que prefieras. Te respondemos y coordinamos disponibilidad, pago y envío o retiro.</p>
+    </section>
+
+    <section style="position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:clamp(10px,2vw,24px) clamp(20px,5vw,64px) clamp(30px,4vw,60px);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(18px,2vw,28px)">
+
+      <a href="https://wa.me/595982602731?text=Hola%20Vemar%20Importados%2C%20quisiera%20hacer%20una%20consulta." target="_blank" rel="noopener" style="display:flex;flex-direction:column;gap:16px;padding:clamp(30px,3vw,42px);border:1px solid #E9E7E2;background:#FFFFFF;text-decoration:none;transition:border-color .45s ease,transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s ease" style-hover="border-color:#B9A078;transform:translateY(-4px);box-shadow:0 24px 40px -30px rgba(23,23,23,.28)">
+        <span style="width:52px;height:52px;border-radius:50%;background:#F5F1E8;color:#171717;display:flex;align-items:center;justify-content:center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"></path></svg>
+        </span>
+        <span style="font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">WhatsApp</span>
+        <span style="font-family:'Playfair Display',serif;font-size:23px;color:#171717">0982 602 731</span>
+        <span style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#171717;display:inline-flex;align-items:center;gap:9px">Escribir<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg></span>
+      </a>
+
+      <a href="https://www.instagram.com/vemar_importados?igsh=dDI5Z2gwZmU3emly" target="_blank" rel="noopener" style="display:flex;flex-direction:column;gap:16px;padding:clamp(30px,3vw,42px);border:1px solid #E9E7E2;background:#FFFFFF;text-decoration:none;transition:border-color .45s ease,transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s ease" style-hover="border-color:#B9A078;transform:translateY(-4px);box-shadow:0 24px 40px -30px rgba(23,23,23,.28)">
+        <span style="width:52px;height:52px;border-radius:50%;background:#F5F1E8;color:#171717;display:flex;align-items:center;justify-content:center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle></svg>
+        </span>
+        <span style="font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Instagram</span>
+        <span style="font-family:'Playfair Display',serif;font-size:23px;color:#171717">@vemar_importados</span>
+        <span style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#171717;display:inline-flex;align-items:center;gap:9px">Seguir<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg></span>
+      </a>
+
+      <a href="mailto:vemarimportados@gmail.com" style="display:flex;flex-direction:column;gap:16px;padding:clamp(30px,3vw,42px);border:1px solid #E9E7E2;background:#FFFFFF;text-decoration:none;transition:border-color .45s ease,transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s ease" style-hover="border-color:#B9A078;transform:translateY(-4px);box-shadow:0 24px 40px -30px rgba(23,23,23,.28)">
+        <span style="width:52px;height:52px;border-radius:50%;background:#F5F1E8;color:#171717;display:flex;align-items:center;justify-content:center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M4 7l8 6 8-6"></path></svg>
+        </span>
+        <span style="font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Email</span>
+        <span style="font-family:'Playfair Display',serif;font-size:20px;color:#171717;word-break:break-word">vemarimportados@gmail.com</span>
+        <span style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#171717;display:inline-flex;align-items:center;gap:9px">Enviar<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg></span>
+      </a>
+    </section>
+
+    <section style="position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 clamp(20px,5vw,64px) clamp(64px,8vw,120px)">
+      <div style="border-top:1px solid #E9E7E2;padding-top:clamp(28px,3vw,44px);display:flex;flex-wrap:wrap;gap:14px 48px;color:#4A4A4A;font-size:13.5px;font-weight:300">
+        <span style="display:inline-flex;align-items:center;gap:9px"><span style="width:24px;height:1px;background:#B9A078;display:block"></span>Asunción · Paraguay</span>
+        <span style="display:inline-flex;align-items:center;gap:9px"><span style="width:24px;height:1px;background:#B9A078;display:block"></span>Lun a Sáb · 9:00 a 19:00</span>
+        <span style="display:inline-flex;align-items:center;gap:9px"><span style="width:24px;height:1px;background:#B9A078;display:block"></span>Envíos a todo el país</span>
+      </div>
+    </section>
+  </main>
+  </sc-if>
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer id="contacto">
+    <div style="background:#FFFFFF;border-top:1px solid #E9E7E2;position:relative;z-index:1">
+      <div style="max-width:1440px;margin:0 auto;padding:clamp(44px,5vw,72px) clamp(20px,5vw,64px) 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:clamp(28px,3vw,48px)">
+        <div>
+          <div style="display:inline-flex;flex-direction:column;align-items:center;gap:3px;color:#171717;margin-bottom:18px">
+            <svg viewBox="0 0 200 200" style="width:30px;height:30px;color:#171717"><use href="#vemar-mark"></use></svg>
+            <span style="font-size:14px;letter-spacing:0.34em;font-weight:500;padding-left:0.34em">VEMAR</span>
+            <span style="width:100%;height:1px;background:#171717"></span>
+            <span style="font-size:6.5px;letter-spacing:0.3em;color:#333333;padding-left:0.3em">VEMAR IMPORTADOS</span>
+          </div>
+          <p style="margin:0;font-size:12.5px;line-height:1.8;color:#333333;font-weight:300;max-width:230px">Joyería importada, seleccionada pieza por pieza. Asunción, Paraguay.</p>
+        </div>
+        <div>
+          <p style="margin:0 0 18px;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Colecciones</p>
+          <div style="display:flex;flex-direction:column;gap:11px;font-size:12.5px">
+            <a href="#joyeria" onClick="{{ goEsencial }}" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">Vemar Esencial</a>
+            <a href="#joyeria" onClick="{{ goSignature }}" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">Vemar Signature</a>
+            <a href="#joyeria" onClick="{{ goNuevos }}" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">Recién llegados</a>
+            <a href="#joyeria" onClick="{{ goCatalog }}" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">Todo el catálogo</a>
+          </div>
+        </div>
+        <div>
+          <p style="margin:0 0 18px;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Atención al cliente</p>
+          <div style="display:flex;flex-direction:column;gap:11px;font-size:12.5px">
+            <a href="{{ waPlainHref }}" target="_blank" rel="noopener" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">Políticas de cambios</a>
+            <a href="{{ waPlainHref }}" target="_blank" rel="noopener" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">Envíos y entregas</a>
+            <a href="{{ waPlainHref }}" target="_blank" rel="noopener" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">Cuidados de las joyas</a>
+            <a href="#nosotros" onClick="{{ goAbout }}" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">Preguntas frecuentes</a>
+          </div>
+        </div>
+        <div>
+          <p style="margin:0 0 18px;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Contacto</p>
+          <div style="display:flex;flex-direction:column;gap:11px;font-size:12.5px">
+            <a href="{{ waPlainHref }}" target="_blank" rel="noopener" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">WhatsApp {{ whatsappPretty }}</a>
+            <a href="{{ instagramHref }}" target="_blank" rel="noopener" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">Instagram {{ instagramUser }}</a>
+            <a href="mailto:vemarimportados@gmail.com" style="color:#333333;transition:color .35s ease" style-hover="color:#B9A078">vemarimportados@gmail.com</a>
+            <span style="color:#333333">Asunción · Paraguay</span>
+            <span style="color:#333333">Lun a Sáb · 9:00 a 19:00</span>
+          </div>
+        </div>
+      </div>
+      <div style="max-width:1440px;margin:0 auto;padding:clamp(34px,4vw,52px) clamp(20px,5vw,64px);display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center">
+        <p style="margin:0;font-size:10.5px;letter-spacing:0.14em;color:#333333">© 2026 Vemar Importados. Todos los derechos reservados.</p>
+        <p style="margin:0;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#B9A078">Compras y consultas por WhatsApp</p>
+      </div>
+    </div>
+    <section aria-label="Asesoramiento personalizado" style="position:relative;height:clamp(340px,54vh,560px);clip-path:inset(0);background:#171717">
+      <div style="position:fixed;left:0;bottom:0;width:100%;height:clamp(340px,54vh,560px);overflow:hidden;display:flex;align-items:center;background:#171717">
+        <img src="images/pulsera-eslabon.jpeg" alt="Asesoramiento personalizado Vemar" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 55%;opacity:.66">
+        <div style="position:absolute;inset:0;background:linear-gradient(95deg,rgba(23,23,23,.84),rgba(23,23,23,.28))"></div>
+        <div style="position:relative;padding:clamp(34px,6vw,80px);max-width:620px">
+          <p class="script-accent" style="margin:0 0 10px;color:#B9A078">Estamos para ayudarte</p>
+          <h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(26px,3.4vw,44px);color:#FFFFFF;line-height:1.08">Asesoramiento personalizado</h2>
+          <p style="margin:16px 0 30px;font-size:14.5px;line-height:1.75;color:#E9E7E2;font-weight:300;max-width:440px">¿Buscás una pieza para una ocasión especial? Nuestro equipo puede ayudarte a elegir.</p>
+          <a href="{{ waPlainHref }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:11px;padding:16px 32px;background:#FFFFFF;color:#171717;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;transition:background .45s ease,color .45s ease" style-hover="background:#B9A078;color:#FFFFFF">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"></path></svg>
+            Hablar por WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+  </footer>
+
+  <!-- ══════════ CARRITO ══════════ -->
+  <sc-if value="{{ cartOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:90;display:flex;justify-content:flex-end">
+      <div onClick="{{ closeAll }}" style="position:absolute;inset:0;background:rgba(23,23,23,.4);animation:vFadeIn .4s ease both"></div>
+      <aside style="position:relative;width:min(440px,94vw);background:#FFFFFF;display:flex;flex-direction:column;animation:vSlideRight .55s cubic-bezier(.22,1,.36,1) both">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 26px;border-bottom:1px solid #E9E7E2">
+          <p style="margin:0;font-size:10.5px;letter-spacing:0.26em;text-transform:uppercase">Tu pedido ({{ cartCount }})</p>
+          <button onClick="{{ closeAll }}" aria-label="Cerrar" style="background:none;border:none;cursor:pointer;padding:6px;display:flex;transition:color .35s ease" style-hover="color:#B9A078">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 5l14 14M19 5 5 19"></path></svg>
+          </button>
+        </div>
+
+        <div style="flex:1;overflow-y:auto;padding:22px 26px">
+          <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:60px 0;text-align:center">
+              <p style="margin:0 0 8px;font-family:'Playfair Display',serif;font-size:22px">Tu carrito está vacío</p>
+              <p style="margin:0 0 26px;font-size:13px;color:#333333;font-weight:300">Agregá piezas y las consultamos juntos por WhatsApp.</p>
+              <button onClick="{{ goCatalogFromCart }}" style="padding:14px 28px;background:#171717;color:#FFFFFF;border:none;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;cursor:pointer;transition:background .45s ease" style-hover="background:#B9A078">Ver el catálogo</button>
+            </div>
+          </sc-if>
+
+          <sc-for list="{{ cart }}" as="c" hint-placeholder-count="0">
+            <div style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid #F0EEE9">
+              <div style="flex:0 0 74px;height:92px;background:#F8F7F4;overflow:hidden">
+                <sc-if value="{{ c.img }}" hint-placeholder-val="{{ false }}">
+                  <img ref="{{ c.imgRef }}" alt="{{ c.name }}" style="width:100%;height:100%;object-fit:cover;display:block">
+                </sc-if>
+                <sc-if value="{{ c.noImg }}" hint-placeholder-val="{{ false }}">
+                  <div style="width:100%;height:100%;background:repeating-linear-gradient(135deg,#F3F1EC 0 7px,#EAE7E1 7px 14px)"></div>
+                </sc-if>
+              </div>
+              <div style="flex:1;min-width:0">
+                <p style="margin:0 0 4px;font-size:8.5px;letter-spacing:0.22em;text-transform:uppercase;color:#B9A078">{{ c.line }}</p>
+                <p style="margin:0;font-family:'Playfair Display',serif;font-size:17px;line-height:1.25">{{ c.name }}</p>
+                <p style="margin:4px 0 0;font-size:11px;color:#333333">{{ c.meta }}</p>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px">
+                  <div style="display:flex;align-items:center;border:1px solid #E9E7E2">
+                    <button onClick="{{ c.dec }}" aria-label="Restar" style="width:30px;height:30px;background:none;border:none;cursor:pointer;color:#333333">−</button>
+                    <span style="min-width:22px;text-align:center;font-size:12px">{{ c.qty }}</span>
+                    <button onClick="{{ c.inc }}" aria-label="Sumar" style="width:30px;height:30px;background:none;border:none;cursor:pointer;color:#333333">+</button>
+                  </div>
+                  <p style="margin:0;font-size:13px">{{ c.lineTotal }}</p>
+                </div>
+              </div>
+              <button onClick="{{ c.remove }}" aria-label="Quitar" style="background:none;border:none;cursor:pointer;align-self:flex-start;padding:2px;color:#333333;transition:color .35s ease" style-hover="color:#B9A078">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 5l14 14M19 5 5 19"></path></svg>
+              </button>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ false }}">
+            <div style="padding-top:26px;display:flex;flex-direction:column;gap:12px">
+              <p style="margin:0 0 4px;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Tus datos</p>
+              <input placeholder="Nombre y apellido" value="{{ form.nombre }}" onChange="{{ setNombre }}" style="border:1px solid #E9E7E2;padding:13px 14px;font-size:13px;transition:border-color .35s ease" style-focus="border-color:#B9A078;outline:none">
+              <input placeholder="Teléfono" value="{{ form.telefono }}" onChange="{{ setTelefono }}" style="border:1px solid #E9E7E2;padding:13px 14px;font-size:13px" style-focus="border-color:#B9A078;outline:none">
+              <input placeholder="Ciudad" value="{{ form.ciudad }}" onChange="{{ setCiudad }}" style="border:1px solid #E9E7E2;padding:13px 14px;font-size:13px" style-focus="border-color:#B9A078;outline:none">
+              <select value="{{ form.entrega }}" onChange="{{ setEntrega }}" style="border:1px solid #E9E7E2;padding:13px 14px;font-size:13px;background:#FFFFFF;cursor:pointer">
+                <option value="Envío a domicilio">Envío a domicilio</option>
+                <option value="Retiro en local (Asunción)">Retiro en local (Asunción)</option>
+                <option value="Encomienda al interior">Encomienda al interior</option>
+              </select>
+              <textarea placeholder="Observaciones (opcional)" rows="3" value="{{ form.obs }}" onChange="{{ setObs }}" style="border:1px solid #E9E7E2;padding:13px 14px;font-size:13px;resize:vertical" style-focus="border-color:#B9A078;outline:none"></textarea>
+            </div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top:1px solid #E9E7E2;padding:22px 26px 26px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+              <span style="font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;color:#333333">Subtotal estimado</span>
+              <span style="font-size:19px;font-family:'Playfair Display',serif">{{ subtotalFmt }}</span>
+            </div>
+            <p style="margin:0 0 18px;font-size:11px;color:#333333;font-weight:300;line-height:1.6">El envío y la forma de pago se confirman por WhatsApp. No procesamos pagos en el sitio.</p>
+            <a href="{{ cartWaHref }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:11px;padding:17px;background:#171717;color:#FFFFFF;font-size:10.5px;letter-spacing:0.22em;text-transform:uppercase;transition:background .45s ease" style-hover="background:#B9A078;color:#FFFFFF">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"></path></svg>
+              Finalizar pedido por WhatsApp
+            </a>
+          </div>
+        </sc-if>
+      </aside>
+    </div>
+  </sc-if>
+
+  <!-- ══════════ BUSCADOR ══════════ -->
+  <sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:95">
+      <div onClick="{{ closeAll }}" style="position:absolute;inset:0;background:rgba(23,23,23,.4);animation:vFadeIn .4s ease both"></div>
+      <div style="position:relative;background:#FFFFFF;animation:vDropDown .5s cubic-bezier(.22,1,.36,1) both;max-height:88vh;overflow-y:auto">
+        <div style="max-width:900px;margin:0 auto;padding:clamp(30px,5vw,58px) clamp(20px,5vw,44px)">
+          <div style="display:flex;align-items:center;gap:16px;border-bottom:1px solid #171717;padding-bottom:14px">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#B9A078" stroke-width="1.2"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5 21 21"></path></svg>
+            <input autofocus placeholder="Buscar anillos, cadenas, aros…" value="{{ query }}" onChange="{{ setQuery }}" style="flex:1;border:none;outline:none;font-family:'Playfair Display',serif;font-size:clamp(20px,3vw,30px);font-weight:300;background:none;padding:0">
+            <button onClick="{{ closeAll }}" aria-label="Cerrar" style="background:none;border:none;cursor:pointer;padding:6px;transition:color .35s ease" style-hover="color:#B9A078">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 5l14 14M19 5 5 19"></path></svg>
+            </button>
+          </div>
+          <p style="margin:16px 0 0;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#B9A078">{{ searchHint }}</p>
+          <div style="margin-top:26px;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:22px">
+            <sc-for list="{{ searchResults }}" as="p" hint-placeholder-count="0">
+              <a href="#producto" onClick="{{ p.open }}" style="display:block">
+                <div style="position:relative;overflow:hidden;background:#F8F7F4;aspect-ratio:4/5">
+                  <sc-if value="{{ p.img }}" hint-placeholder-val="{{ false }}">
+                    <img ref="{{ p.imgRef }}" alt="{{ p.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.22,1,.36,1)" style-hover="transform:scale(1.05)">
+                  </sc-if>
+                  <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}">
+                    <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#F3F1EC 0 9px,#EAE7E1 9px 18px)"></div>
+                  </sc-if>
+                </div>
+                <p style="margin:12px 0 3px;font-family:'Playfair Display',serif;font-size:17px">{{ p.name }}</p>
+                <p style="margin:0;font-size:12px;color:#333333">{{ p.priceFmt }}</p>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══════════ MENÚ MÓVIL ══════════ -->
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:95;display:flex">
+      <div onClick="{{ closeAll }}" style="position:absolute;inset:0;background:rgba(23,23,23,.4);animation:vFadeIn .4s ease both"></div>
+      <aside style="position:relative;width:min(360px,88vw);background:#FFFFFF;padding:26px;display:flex;flex-direction:column;animation:vSlideLeft .5s cubic-bezier(.22,1,.36,1) both;overflow-y:auto">
+        <button onClick="{{ closeAll }}" aria-label="Cerrar" style="align-self:flex-end;background:none;border:none;cursor:pointer;padding:6px;margin-bottom:22px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 5l14 14M19 5 5 19"></path></svg>
+        </button>
+        <div style="display:flex;flex-direction:column;gap:18px;padding-bottom:26px;border-bottom:1px solid #E9E7E2">
+          <a href="#inicio" onClick="{{ goHome }}" style="font-family:'Playfair Display',serif;font-size:26px;font-weight:300">Inicio</a>
+          <a href="#joyeria" onClick="{{ goCatalog }}" style="font-family:'Playfair Display',serif;font-size:26px;font-weight:300">Joyería</a>
+          <a href="#joyeria" onClick="{{ goEsencial }}" style="font-family:'Playfair Display',serif;font-size:26px;font-weight:300">Vemar Esencial</a>
+          <a href="#joyeria" onClick="{{ goSignature }}" style="font-family:'Playfair Display',serif;font-size:26px;font-weight:300">Vemar Signature</a>
+          <a href="#nosotros" onClick="{{ goAbout }}" style="font-family:'Playfair Display',serif;font-size:26px;font-weight:300">Nosotros</a>
+          <a href="#contacto" onClick="{{ goContact }}" style="font-family:'Playfair Display',serif;font-size:26px;font-weight:300">Contacto</a>
+        </div>
+        <div style="padding-top:24px;display:flex;flex-direction:column;gap:14px">
+          <p style="margin:0;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Categorías</p>
+          <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="6">
+            <a href="#joyeria" onClick="{{ cat.go }}" style="font-size:14px;color:#333333">{{ cat.name }}</a>
+          </sc-for>
+        </div>
+        <a href="{{ waPlainHref }}" target="_blank" rel="noopener" style="margin-top:30px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;background:#171717;color:#FFFFFF;font-size:10px;letter-spacing:0.22em;text-transform:uppercase">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5Z"></path></svg>
+          Escribinos por WhatsApp
+        </a>
+      </aside>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:120;background:#171717;color:#FFFFFF;padding:14px 26px;font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;animation:vFadeIn .4s ease both;box-shadow:0 18px 40px -22px rgba(23,23,23,.5)">{{ toast }}</div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;heroVideoUrl&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Hero&quot; },
+  &quot;showVideoSlotHint&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Hero&quot; },
+  &quot;whatsappNumber&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;+595 982 602 731&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Contacto&quot; },
+  &quot;instagramUser&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;@vemar_importados&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Contacto&quot; },
+  &quot;topBarMessage&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Envíos a todo Paraguay · Compras y consultas por WhatsApp&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Header&quot; },
+  &quot;showTopBar&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Header&quot; }
+}">
+const IMG = {
+  cruz: 'images/cadena-cruz-fina.jpeg',
+  pulsera: 'images/pulsera-eslabon.jpeg',
+  cubana: 'images/cadena-cubana-cruz.jpeg',
+  rosario: 'images/collar-rosario.jpeg',
+  torzal: 'images/cadena-torzal.jpeg',
+  // Colección real (carpetas Esencial / Signature)
+  e_cadenaCruz: 'Colecciones/Esencial/Cadena%20Sadusa%205mm%20mas%20cruz%20500%20mil.jpeg',
+  e_pulsera: 'Colecciones/Esencial/Pulsera%20Sadusa%2020%20cm%204%20mm%20255mil.jpeg',
+  s_baiana: 'Colecciones/Signature/Cadena%20Baiana%203mm%2045cm.jpeg',
+  s_rosario: 'Colecciones/Signature/Rosario%20480.000%20gs.jpeg',
+  s_sadusa: 'Colecciones/Signature/Sadusa%204mm%2045%20cm.jpeg',
+  s_anillo: 'Colecciones/Signature/Anillo%20250mil.jpeg',
+  s_aroMariposa: 'Colecciones/Signature/Aro%20mariposa%20125mil.jpeg',
+  s_aroPunto: 'Colecciones/Signature/Aro%20punto%20luz%20125mil.jpeg',
+  s_grummet: 'Colecciones/Signature/Cadena%20Grummet%204mm%20485mil%20Pulsera%20Grummet%204mm%20350mil.jpeg'
+};
+
+const PRODUCTS = [
+  { id:'ve-01', sku:'VM-CAD-051', name:'Cadena Sadusa 5 mm con Dije Cruz', line:'Vemar Esencial', cat:'cadenas', price:500000, img:IMG.e_cadenaCruz, imgAlt:'', material:'Oro laminado 18k', color:'Dorado', medidas:'5 mm', variants:['Única'], stock:true, isNew:true, tag:'Nuevo',
+    description:'Cadena Sadusa de 5 mm con dije cruz. Presencia marcada y terminación pulida a espejo.' },
+  { id:'ve-02', sku:'VM-PUL-021', name:'Pulsera Sadusa 4 mm · 20 cm', line:'Vemar Esencial', cat:'pulseras', price:255000, img:IMG.e_pulsera, imgAlt:'', material:'Oro laminado 18k', color:'Dorado', medidas:'20 cm · 4 mm', variants:['20 cm'], stock:true, isNew:false, tag:'',
+    description:'Pulsera Sadusa de 4 mm y 20 cm. Cómoda, flexible y versátil para todos los días.' },
+  { id:'vs-01', sku:'VM-CAD-061', name:'Cadena Baiana 3 mm · 45 cm', line:'Vemar Signature', cat:'cadenas', price:0, img:IMG.s_baiana, imgAlt:'', material:'Oro laminado 18k', color:'Dorado', medidas:'45 cm · 3 mm', variants:['45 cm'], stock:true, isNew:true, tag:'Nuevo',
+    description:'Cadena Baiana de 3 mm y 45 cm. Tejido elegante de caída fluida.' },
+  { id:'vs-02', sku:'VM-CAD-062', name:'Rosario Vemar', line:'Vemar Signature', cat:'cadenas', price:480000, img:IMG.s_rosario, imgAlt:'', material:'Oro laminado 18k', color:'Dorado', medidas:'Rosario', variants:['Única'], stock:true, isNew:false, tag:'Destacado',
+    description:'Rosario en oro laminado, pieza devocional de acabado delicado y presencia serena.' },
+  { id:'vs-03', sku:'VM-CAD-063', name:'Cadena Sadusa 4 mm · 45 cm', line:'Vemar Signature', cat:'cadenas', price:0, img:IMG.s_sadusa, imgAlt:'', material:'Oro laminado 18k', color:'Dorado', medidas:'45 cm · 4 mm', variants:['45 cm'], stock:true, isNew:true, tag:'Nuevo',
+    description:'Cadena Sadusa de 4 mm y 45 cm. Eslabón prolijo y brillo parejo.' },
+  { id:'vs-04', sku:'VM-ANI-021', name:'Anillo Signature', line:'Vemar Signature', cat:'anillos', price:250000, img:IMG.s_anillo, imgAlt:'', material:'Oro laminado 18k', color:'Dorado', medidas:'Aro estándar', variants:['Única'], stock:true, isNew:true, tag:'Nuevo',
+    description:'Anillo de terminación pulida y presencia refinada.' },
+  { id:'vs-05', sku:'VM-ARO-031', name:'Aros Mariposa', line:'Vemar Signature', cat:'aros', price:125000, img:IMG.s_aroMariposa, imgAlt:'', material:'Oro laminado 18k', color:'Dorado', medidas:'Mariposa', variants:['Única'], stock:true, isNew:true, tag:'Nuevo',
+    description:'Aros con diseño de mariposa, delicados y luminosos.' },
+  { id:'vs-06', sku:'VM-ARO-032', name:'Aros Punto de Luz', line:'Vemar Signature', cat:'aros', price:125000, img:IMG.s_aroPunto, imgAlt:'', material:'Oro laminado 18k con circonia', color:'Dorado', medidas:'Punto de luz', variants:['Única'], stock:true, isNew:true, tag:'Nuevo',
+    description:'Aros punto de luz con piedra central que brilla al moverse.' },
+  { id:'vs-07', sku:'VM-CAD-071', name:'Cadena Grummet 4 mm', line:'Vemar Signature', cat:'cadenas', price:485000, img:IMG.s_grummet, imgAlt:'', material:'Oro laminado 18k', color:'Dorado', medidas:'4 mm', variants:['45 cm'], stock:true, isNew:true, tag:'Nuevo',
+    description:'Cadena Grummet de 4 mm, eslabón firme y brillo parejo.' },
+  { id:'vs-08', sku:'VM-PUL-031', name:'Pulsera Grummet 4 mm', line:'Vemar Signature', cat:'pulseras', price:350000, img:IMG.s_grummet, imgAlt:'', material:'Oro laminado 18k', color:'Dorado', medidas:'4 mm', variants:['Única'], stock:true, isNew:false, tag:'',
+    description:'Pulsera Grummet de 4 mm, a juego con la cadena Grummet.' }
+];
+
+const CURATED = ['vs-02', 'vs-07', 'vs-04', 'vs-05', 've-01', 've-02'];
+
+const CATS = [
+  { key:'anillos', name:'Anillos', img:'uploads/anillos.png', imgPos:'center 45%' },
+  { key:'aros', name:'Aros', img:'uploads/aros.png', imgPos:'center 45%' },
+  { key:'cadenas', name:'Cadenas', img:IMG.e_cadenaCruz, imgPos:'center 66%' },
+  { key:'pulseras', name:'Pulseras', img:'uploads/pulseras.png', imgPos:'center 50%' },
+  { key:'sets', name:'Sets', img:IMG.s_rosario, imgPos:'center 62%' }
+];
+
+class Component extends DCLogic {
+  state = {
+    route: 'home', productId: 'vs-02', isMobile: false,
+    cartOpen: false, searchOpen: false, menuOpen: false, megaOpen: false,
+    cart: [], favs: {}, hover: null, pulse: false, toast: '',
+    query: '', sort: 'relevancia', filtersOpen: true,
+    f: { cat: 'todas', line: 'todas', min: '', max: '', material: 'todos', color: 'todos', stock: false, nuevo: false },
+    variant: '', qty: 1, galleryIndex: 0, zoom: false, origin: '50% 50%',
+    form: { nombre: '', telefono: '', ciudad: '', entrega: 'Envío a domicilio', obs: '' }
+  };
+
+  componentDidMount() {
+    this.sync = () => { this.setState({ isMobile: window.innerWidth < 900 }); setTimeout(() => { this.measureTrack(); this.updateTrack(); }, 60); };
+    this.sync();
+    window.addEventListener('resize', this.sync);
+    this.bindReveal();
+    this.revealSweep = setTimeout(() => this.revealAll(), 2500);
+    this.onScroll = () => {
+      document.querySelectorAll('[data-parallax]').forEach((el) => {
+        const r = el.getBoundingClientRect();
+        const rate = parseFloat(el.getAttribute('data-parallax')) || 0.05;
+        el.style.transform = 'translate3d(0,' + ((r.top + r.height / 2 - window.innerHeight / 2) * -rate).toFixed(1) + 'px,0)';
+      });
+      this.revealCheck();
+      this.updateTrack();
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    document.addEventListener('scroll', this.onScroll, { passive: true, capture: true });
+    this.onScroll();
+    // rAF ticker: some hosts don't bubble scroll to window, so drive from the clock
+    this.lastY = -1;
+    this.tick = () => {
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      if (y !== this.lastY) { this.lastY = y; this.onScroll(); }
+      this.rafId = requestAnimationFrame(this.tick);
+    };
+    this.rafId = requestAnimationFrame(this.tick);
+  }
+  componentDidUpdate(_, prev) {
+    if (prev.route !== this.state.route) window.scrollTo(0, 0);
+    this.bindReveal();
+    this.revealCheck();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.sync);
+    window.removeEventListener('scroll', this.onScroll);
+    document.removeEventListener('scroll', this.onScroll, true);
+    cancelAnimationFrame(this.rafId);
+    clearTimeout(this.revealSweep);
+    this.revealAll();
+  }
+  installTrackDriver() {
+    if (this.driverOn) return;
+    this.driverOn = true;
+    const run = () => { try { this.updateTrack(); this.revealCheck(); } catch (err) {} };
+    this.driver = run;
+    window.addEventListener('scroll', run, { passive: true });
+    document.addEventListener('scroll', run, { passive: true, capture: true });
+    window.addEventListener('resize', () => { this.measureTrack(); run(); });
+    let lastY = -1;
+    const tick = () => {
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      if (y !== lastY) { lastY = y; run(); }
+      this.driverRaf = requestAnimationFrame(tick);
+    };
+    this.driverRaf = requestAnimationFrame(tick);
+    run();
+  }
+  // Acordeón: la tarjeta en la primera posición (izquierda) es la grande; al avanzar, la que llega a esa
+  // posición crece y la anterior se achica. this.pos va de 0 (inicio) a maxPos (última tarjeta grande).
+  selMetrics() {
+    const W = window.innerWidth || (this.row && this.row.clientWidth) || 0;
+    const mob = this.state.isMobile;
+    const big = (mob ? 0.82 : 0.48) * W;
+    const norm = (mob ? 0.56 : 0.28) * W;
+    if (this._selGap == null && this.track) this._selGap = parseFloat(getComputedStyle(this.track).columnGap) || 14;
+    const gap = this._selGap || 14;
+    return { W, big, norm, gap, unit: norm + gap };
+  }
+  maxPos() {
+    if (!this.track) return 0;
+    const N = this.track.querySelectorAll('[data-card]').length;
+    const { unit } = this.selMetrics();
+    return Math.max(0, (N - 1) * unit);
+  }
+  renderSel() {
+    if (!this.track) return;
+    const W = window.innerWidth || (this.row && this.row.clientWidth) || 0;
+    if (!W) return;
+    const cards = [...this.track.querySelectorAll('[data-card]')];
+    const N = cards.length;
+    if (!N) return;
+    const { big, norm, gap, unit } = this.selMetrics();
+    const maxPos = (N - 1) * unit;
+    if (this.pos == null) this.pos = 0;
+    this.pos = Math.max(0, Math.min(maxPos, this.pos));
+    const a = unit > 0 ? this.pos / unit : 0;                 // índice activo (float)
+    const w = cards.map((c, i) => norm + (big - norm) * Math.max(0, 1 - Math.abs(i - a)));
+    cards.forEach((c, i) => {
+      c.style.flex = '0 0 ' + w[i].toFixed(2) + 'px';
+      c.style.width = w[i].toFixed(2) + 'px';
+      // Cuando la tarjeta pasa a ser la grande, el texto va DENTRO de la imagen (overlay); si está chica, va debajo.
+      const isBig = Math.max(0, 1 - Math.abs(i - a)) > 0.5;
+      const ov = c.querySelector('[data-overlay]');
+      const bl = c.querySelector('[data-below]');
+      const gr = c.querySelector('[data-grad]');
+      if (ov) { ov.style.opacity = isBig ? '1' : '0'; ov.style.pointerEvents = isBig ? 'auto' : 'none'; }
+      if (gr) { gr.style.opacity = isBig ? '1' : '0'; }
+      if (bl) { bl.style.display = isBig ? 'none' : 'flex'; }
+    });
+    const x = [0];
+    for (let i = 1; i < N; i++) x[i] = x[i - 1] + w[i - 1] + gap;
+    const k = Math.min(N - 1, Math.floor(a));
+    const f = a - k;
+    const activeX = (k + 1 < N) ? x[k] + f * (x[k + 1] - x[k]) : x[k];
+    this.track.style.transform = 'translate3d(' + (-activeX).toFixed(1) + 'px,0,0)';
+  }
+  // ScrollExpand (React Bits, portado): el frame se expande a pantalla completa impulsado por el scroll.
+  setupScrollExpand(root) {
+    const track = root.querySelector('.se__track');
+    const stage = root.querySelector('.se__stage');
+    const frame = root.querySelector('.se__frame');
+    const media = root.querySelector('.se__media');
+    const titleEl = root.querySelector('.se__title');
+    const overlay = root.querySelector('.se__overlay');
+    const scrim = root.querySelector('.se__scrim');
+    const hint = root.querySelector('.se__hint');
+    if (!track || !stage || !frame || !media) return;
+    const cfg = { startWidth: 80, startHeight: 84, startRadius: 0, endRadius: 0, mediaZoom: 1.35, scrollDistance: 0.55, holdDistance: 0.1, smoothing: 0.1, overlayScrim: 0.55 };
+    const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+    const smoothstep = (e0, e1, x) => { const t = clamp((x - e0) / ((e1 - e0) || 1e-6), 0, 1); return t * t * (3 - 2 * t); };
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let current = 0, target = 0, stageH = 0, running = false, raf = 0;
+    const applyProgress = (p) => {
+      const e = smoothstep(0, 1, p);
+      const w = cfg.startWidth + (100 - cfg.startWidth) * e;
+      const h = cfg.startHeight + (100 - cfg.startHeight) * e;
+      const ix = Math.max(0, (100 - w) / 2), iy = Math.max(0, (100 - h) / 2);
+      const r = cfg.startRadius + (cfg.endRadius - cfg.startRadius) * e;
+      frame.style.clipPath = 'inset(' + iy + '% ' + ix + '% ' + iy + '% ' + ix + '% round ' + r + 'px)';
+      media.style.transform = 'scale(' + (cfg.mediaZoom + (1 - cfg.mediaZoom) * e) + ')';
+      if (scrim) scrim.style.opacity = '0';
+      if (titleEl) { const out = smoothstep(0.4, 0.88, p); titleEl.style.opacity = String(1 - out); titleEl.style.transform = 'translate3d(0,' + (-28 * out) + 'px,0) scale(' + (1 + 0.06 * out) + ')'; }
+      if (hint) { const gone = smoothstep(0, 0.12, p); hint.style.opacity = String(1 - gone); hint.style.transform = 'translate3d(0,' + (8 * gone) + 'px,0)'; }
+      if (overlay) { const inn = smoothstep(0.68, 1, p); overlay.style.opacity = String(inn); overlay.style.transform = 'translate3d(0,' + (18 * (1 - inn)) + 'px,0)'; overlay.style.pointerEvents = inn > 0.5 ? 'auto' : 'none'; }
+    };
+    const measure = () => {
+      stageH = window.innerHeight;
+      if (stageH <= 0) return;
+      stage.style.height = stageH + 'px';
+      track.style.height = (stageH * (1 + Math.max(0, cfg.scrollDistance) + Math.max(0, cfg.holdDistance))) + 'px';
+      const w = root.clientWidth || stageH;
+      stage.style.setProperty('--se-title-size', clamp(w * 0.048, 24, 72) + 'px');
+    };
+    const readProgress = () => {
+      const span = stageH * Math.max(0.01, cfg.scrollDistance);
+      const top = track.getBoundingClientRect().top;
+      const entry = stageH * 0.3;   // empieza a crecer mientras la sección entra/está centrada
+      return clamp((entry - top) / span, 0, 1);
+    };
+    const tick = () => {
+      const k = cfg.smoothing <= 0 ? 1 : 1 - Math.exp(-1 / (60 * cfg.smoothing));
+      current += (target - current) * k;
+      if (Math.abs(target - current) < 0.0004) { current = target; running = false; }
+      applyProgress(current);
+      raf = running ? requestAnimationFrame(tick) : 0;
+    };
+    const kick = () => { if (running) return; running = true; if (!raf) raf = requestAnimationFrame(tick); };
+    const onScroll = () => { target = readProgress(); if (cfg.smoothing <= 0 || reduce) { current = target; applyProgress(current); return; } kick(); };
+    const onResize = () => { measure(); target = readProgress(); current = target; applyProgress(current); };
+    measure(); target = readProgress(); current = target; applyProgress(current);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+    try { const ro = new ResizeObserver(onResize); ro.observe(root); } catch (e) {}
+  }
+  // Recalibra al montar y al redimensionar. No fija la sección ni la mueve con el scroll vertical.
+  measureTrack() {
+    if (!this.track || !this.row) return;
+    this._selGap = null;
+    this.renderSel();
+  }
+  // La cinta se controla por el cursor/dedo; el scroll vertical de la página no la afecta.
+  updateTrack() {}
+  // Anima this.pos hacia un objetivo (para las flechas), llamando a renderSel en cada frame.
+  animateSel(target) {
+    if (this._selRaf) cancelAnimationFrame(this._selRaf);
+    const step = () => {
+      const diff = target - this.pos;
+      this.pos += diff * 0.16;
+      if (Math.abs(diff) < 0.5) { this.pos = target; this.renderSel(); this._selRaf = null; return; }
+      this.renderSel();
+      this._selRaf = requestAnimationFrame(step);
+    };
+    this._selRaf = requestAnimationFrame(step);
+  }
+  // Avanza/retrocede una tarjeta (flechas ‹ ›). dir = -1 anterior, +1 siguiente.
+  selStep(dir) {
+    if (!this.track) return;
+    const N = this.track.querySelectorAll('[data-card]').length;
+    if (!N) return;
+    const { unit } = this.selMetrics();
+    let cur = (this._activeIdx != null) ? this._activeIdx : Math.round((unit ? this.pos / unit : 0));
+    cur = Math.max(0, Math.min(N - 1, cur + dir));
+    this._activeIdx = cur;
+    this.animateSel(cur * unit);
+    this.updateArrows();
+  }
+  // Habilita/deshabilita las flechas según la posición (opacidad).
+  updateArrows() {
+    if (!this.track) return;
+    const N = this.track.querySelectorAll('[data-card]').length;
+    const cur = this._activeIdx || 0;
+    if (this._arrowPrev) { this._arrowPrev.style.opacity = cur <= 0 ? '.3' : '1'; this._arrowPrev.style.pointerEvents = cur <= 0 ? 'none' : 'auto'; }
+    if (this._arrowNext) { this._arrowNext.style.opacity = cur >= N - 1 ? '.3' : '1'; this._arrowNext.style.pointerEvents = cur >= N - 1 ? 'none' : 'auto'; }
+  }
+  // Desktop: la POSICIÓN del cursor controla el acordeón (mover a la derecha → crecen las siguientes
+  // tarjetas en la primera posición; a la izquierda → vuelve). Mobile (touch): deslizar con el dedo.
+  setupDrag(row) {
+    if (row._dragBound) return;
+    row._dragBound = true;
+    if (this.pos == null) this.pos = 0;
+    this.targetPos = this.pos;
+    row.addEventListener('dragstart', (e) => e.preventDefault());
+
+    // Desktop: la navegación es por flechas (ver selPrev/selNext). Sin paneo por cursor.
+    row.style.cursor = 'default';
+
+    // ---------- Mobile: arrastre con el dedo ----------
+    let dragging = false, moved = false, startX = 0, startPos = 0, lastX = 0, lastT = 0, vel = 0, pid = null;
+    const stopMomentum = () => { if (this._momentum) { cancelAnimationFrame(this._momentum); this._momentum = null; } };
+    row.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;          // mouse no arrastra
+      stopMomentum();
+      dragging = true; moved = false; pid = e.pointerId;
+      startX = e.clientX; startPos = this.pos;
+      lastX = e.clientX; lastT = e.timeStamp; vel = 0;
+    });
+    row.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'mouse' || !dragging) return;
+      const dx = e.clientX - startX;
+      if (!moved) { if (Math.abs(dx) < 4) return; moved = true; try { row.setPointerCapture(pid); } catch (err) {} }
+      this.pos = startPos - dx;                        // arrastrar a la izquierda avanza al siguiente
+      this.targetPos = this.pos;
+      this.renderSel();
+      const dt = e.timeStamp - lastT;
+      if (dt > 0) vel = -(e.clientX - lastX) / dt;
+      lastX = e.clientX; lastT = e.timeStamp;
+      e.preventDefault();
+    });
+    const end = (e) => {
+      if (e && e.pointerType === 'mouse') return;
+      if (!dragging) return;
+      dragging = false;
+      if (pid != null) { try { row.releasePointerCapture(pid); } catch (err) {} pid = null; }
+      if (!moved) return;
+      row.dataset.dragged = '1';
+      setTimeout(() => { delete row.dataset.dragged; }, 0);
+      // Asienta en UNA tarjeta (una sola grande al soltar).
+      const settle = () => {
+        const { unit } = this.selMetrics();
+        const target = Math.max(0, Math.min(this.maxPos(), Math.round(unit ? this.pos / unit : 0) * unit));
+        const anim = () => {
+          this.pos += (target - this.pos) * 0.2;
+          if (Math.abs(target - this.pos) < 0.5) { this.pos = target; this.targetPos = target; this.renderSel(); this._momentum = null; return; }
+          this.renderSel();
+          this._momentum = requestAnimationFrame(anim);
+        };
+        this._momentum = requestAnimationFrame(anim);
+      };
+      let v = vel * 16;
+      v = Math.max(-140, Math.min(140, v));
+      const step = () => {
+        v *= 0.9;
+        this.pos += v;
+        const mx = this.maxPos();
+        if (this.pos < 0) { this.pos = 0; v = 0; }
+        if (this.pos > mx) { this.pos = mx; v = 0; }
+        this.targetPos = this.pos;
+        this.renderSel();
+        if (Math.abs(v) > 0.3) { this._momentum = requestAnimationFrame(step); }
+        else { settle(); }
+      };
+      if (Math.abs(v) > 0.5) this._momentum = requestAnimationFrame(step);
+      else settle();
+    };
+    row.addEventListener('pointerup', end);
+    row.addEventListener('pointercancel', end);
+    // Evita que un arrastre (touch) dispare el clic de los enlaces/botones internos.
+    row.addEventListener('click', (e) => { if (row.dataset.dragged) { e.preventDefault(); e.stopPropagation(); } }, true);
+  }
+  show(el) { el.style.opacity = '1'; el.style.transform = 'none'; el.dataset.revealHidden = ''; }
+  bindReveal() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll('[data-reveal]').forEach((el) => {
+      if (el.dataset.revealBound) return;
+      el.dataset.revealBound = '1';
+      if (reduce) { this.show(el); return; }
+      el.style.transition = 'opacity 1.1s cubic-bezier(.22,1,.36,1), transform 1.1s cubic-bezier(.22,1,.36,1)';
+      // only hide what is genuinely below the fold; anything in view stays visible
+      if (el.getBoundingClientRect().top < window.innerHeight * 0.95) { this.show(el); return; }
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(22px)';
+      el.dataset.revealHidden = '1';
+    });
+  }
+  revealCheck() {
+    document.querySelectorAll('[data-reveal][data-reveal-hidden="1"]').forEach((el) => {
+      if (el.getBoundingClientRect().top < window.innerHeight * 0.92) this.show(el);
+    });
+  }
+  revealAll() { document.querySelectorAll('[data-reveal]').forEach((el) => this.show(el)); }
+  imgRef(url) {
+    return (el) => { if (!el) return; if (url) { if (el.getAttribute('src') !== url) el.setAttribute('src', url); } else el.removeAttribute('src'); };
+  }
+
+  gs(n) { return 'Gs. ' + Math.round(n).toLocaleString('es-PY').replace(/,/g, '.'); }
+  wa() { return String(this.props.whatsappNumber || '595982602731').replace(/[^0-9]/g, ''); }
+  waLink(text) { return 'https://wa.me/' + this.wa() + '?text=' + encodeURIComponent(text); }
+  nav(route, patch) { return (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState(Object.assign({ route, cartOpen: false, searchOpen: false, menuOpen: false, megaOpen: false }, patch || {})); try { window.scrollTo(0, 0); } catch (err) {} }; }
+  flash(msg) { this.setState({ toast: msg }); clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast: '' }), 2200); }
+
+  find(id) { return PRODUCTS.find((p) => p.id === id) || PRODUCTS[0]; }
+
+  add(p, qty, variant) {
+    const v = variant || (p.variants && p.variants[0]) || '—';
+    this.setState((s) => {
+      const key = p.id + '|' + v;
+      const cart = s.cart.slice();
+      const i = cart.findIndex((c) => c.key === key);
+      if (i >= 0) cart[i] = Object.assign({}, cart[i], { qty: cart[i].qty + (qty || 1) });
+      else cart.push({ key, id: p.id, variant: v, qty: qty || 1 });
+      return { cart, pulse: true };
+    });
+    setTimeout(() => this.setState({ pulse: false }), 480);
+    this.flash('Agregado al pedido');
+  }
+
+  decorate(p) {
+    const hovered = this.state.hover === p.id;
+    return {
+      id: p.id, name: p.name, line: p.line, priceFmt: p.price ? this.gs(p.price) : 'Consultar precio',
+      img: p.img || '', imgAlt: p.imgAlt || p.img || '', noImg: !p.img, slot: p.slot || '',
+      imgRef: this.imgRef(p.img || ''), altRef: this.imgRef(p.imgAlt || p.img || ''),
+      tag: p.tag || '', description: p.description, sku: p.sku, material: p.material,
+      color: p.color, medidas: p.medidas,
+      stockLabel: p.stock ? 'Disponible' : 'A pedido',
+      stockColor: p.stock ? '#333333' : '#B9A078',
+      mainOpacity: hovered && p.imgAlt ? 0 : 1,
+      altOpacity: hovered && p.imgAlt ? 1 : 0,
+      zoom: hovered ? 'scale(1.05)' : 'scale(1)',
+      ctaOpacity: hovered ? 1 : 0,
+      ctaShift: hovered ? 'translateY(0)' : 'translateY(10px)',
+      favColor: this.state.favs[p.id] ? '#B9A078' : '#333333',
+      favFill: this.state.favs[p.id] ? '#B9A078' : 'none',
+      enter: () => this.setState({ hover: p.id }),
+      leave: () => this.setState({ hover: null }),
+      open: this.nav('producto', { productId: p.id, variant: '', qty: 1, galleryIndex: 0 }),
+      add: (e) => { if (e) e.preventDefault(); this.add(p, 1); },
+      fav: (e) => { if (e) e.preventDefault(); this.setState((s) => ({ favs: Object.assign({}, s.favs, { [p.id]: !s.favs[p.id] }) })); }
+    };
+  }
+
+  filtered() {
+    const f = this.state.f;
+    let list = PRODUCTS.filter((p) => {
+      if (f.cat !== 'todas' && p.cat !== f.cat) return false;
+      if (f.line !== 'todas' && p.line !== f.line) return false;
+      if (f.min && p.price < Number(f.min)) return false;
+      if (f.max && p.price > Number(f.max)) return false;
+      if (f.material !== 'todos' && !p.material.toLowerCase().includes(f.material.toLowerCase())) return false;
+      if (f.color !== 'todos' && !p.color.toLowerCase().includes(f.color.toLowerCase())) return false;
+      if (f.stock && !p.stock) return false;
+      if (f.nuevo && !p.isNew) return false;
+      return true;
+    });
+    const s = this.state.sort;
+    if (s === 'precio-asc') list = list.slice().sort((a, b) => a.price - b.price);
+    if (s === 'precio-desc') list = list.slice().sort((a, b) => b.price - a.price);
+    if (s === 'novedad') list = list.slice().sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+    return list;
+  }
+
+  setF(key, val) { this.setState((s) => ({ f: Object.assign({}, s.f, { [key]: val }) })); }
+  setForm(key, val) { this.setState((s) => ({ form: Object.assign({}, s.form, { [key]: val }) })); }
+
+  orderText() {
+    const f = this.state.form;
+    const lines = ['Hola, Vemar Importados. Quiero consultar por el siguiente pedido:', ''];
+    this.state.cart.forEach((c) => {
+      const p = this.find(c.id);
+      lines.push('• Producto: ' + p.name);
+      lines.push('  Código: ' + p.sku);
+      lines.push('  Variante: ' + c.variant);
+      lines.push('  Cantidad: ' + c.qty);
+      lines.push('  Precio: ' + this.gs(p.price));
+      lines.push('');
+    });
+    lines.push('Subtotal estimado: ' + this.gs(this.subtotal()));
+    lines.push('');
+    lines.push('Datos del cliente:');
+    lines.push('Nombre: ' + (f.nombre || '—'));
+    lines.push('Teléfono: ' + (f.telefono || '—'));
+    lines.push('Ciudad: ' + (f.ciudad || '—'));
+    lines.push('Entrega: ' + f.entrega);
+    lines.push('Observaciones: ' + (f.obs || '—'));
+    lines.push('');
+    lines.push('Quedo atento/a a la confirmación de disponibilidad y forma de pago.');
+    return lines.join('\n');
+  }
+  subtotal() { return this.state.cart.reduce((t, c) => t + this.find(c.id).price * c.qty, 0); }
+
+  renderVals() {
+    const st = this.state;
+    const p = this.find(st.productId);
+    const variant = st.variant || (p.variants && p.variants[0]) || '—';
+    const galleryImgs = p.img ? [p.img, '', ''] : ['', '', ''];
+    const gallerySlots = ['', 'vista alternativa\ndetalle del broche\n1600 × 2000', 'pieza en uso\nfoto editorial\n1600 × 2000'];
+    const catalogList = this.filtered();
+    const q = st.query.trim().toLowerCase();
+    const results = q ? PRODUCTS.filter((x) => (x.name + ' ' + x.cat + ' ' + x.line + ' ' + x.material).toLowerCase().includes(q)).slice(0, 8) : PRODUCTS.filter((x) => x.isNew).slice(0, 4);
+    const catName = { todas: 'Toda la joyería', anillos: 'Anillos', aros: 'Aros', cadenas: 'Cadenas', pulseras: 'Pulseras', dijes: 'Dijes', sets: 'Sets' };
+    const chip = (active) => ({ bg: active ? '#171717' : '#FFFFFF', color: active ? '#FFFFFF' : '#333333', border: active ? '#171717' : '#E9E7E2' });
+
+    // Reevalúa el estado del header en cada render (p. ej. al cambiar de página).
+    if (this._headerUpdate) requestAnimationFrame(this._headerUpdate);
+
+    return {
+      showTopBar: this.props.showTopBar !== false,
+      headerRef: (el) => {
+        if (!el || el === this.headerEl) return;
+        this.headerEl = el;
+        const update = () => {
+          if (!this.headerEl) return;
+          const hero = document.querySelector('#inicio > section');
+          const hb = this.headerEl.getBoundingClientRect().height || 80;
+          let solid = true;
+          if (hero) { const r = hero.getBoundingClientRect(); solid = r.bottom <= hb + 2; }
+          if (this._headerHovered) solid = true;                      // cursor sobre el header
+          if (this.state && this.state.megaOpen) solid = true;        // menú de Joyería abierto
+          this.headerEl.dataset.solid = solid ? '1' : '0';
+        };
+        this._headerUpdate = update;
+        el.addEventListener('mouseenter', () => { this._headerHovered = true; update(); });
+        el.addEventListener('mouseleave', () => { this._headerHovered = false; update(); });
+        update();
+        if (!this._headerBound) {
+          this._headerBound = true;
+          window.addEventListener('scroll', update, { passive: true });
+          window.addEventListener('resize', update);
+        }
+      },
+      topBarMessage: this.props.topBarMessage || 'Envíos a todo Paraguay · Compras y consultas por WhatsApp',
+      whatsappPretty: this.props.whatsappNumber || '0982 602 731',
+      instagramUser: this.props.instagramUser || '@vemar_importados',
+      instagramHref: 'https://www.instagram.com/vemar_importados?igsh=dDI5Z2gwZmU3emly',
+      waPlainHref: this.waLink('Hola, Vemar Importados. Quisiera hacer una consulta sobre sus joyas.'),
+
+      hasHeroVideo: !!(this.props.heroVideoUrl || '').trim(),
+      heroVideo: (this.props.heroVideoUrl || '').trim(),
+      heroVideoOpacity: st.heroReady ? 1 : 0,
+      heroVideoSlot: !(this.props.heroVideoUrl || '').trim() && this.props.showVideoSlotHint !== false,
+      heroVideoRef: (el) => {
+        const url = (this.props.heroVideoUrl || '').trim();
+        if (!el || !url) return;
+        if (el.getAttribute('src') !== url) el.setAttribute('src', url);
+        if (el === this.heroEl) return;
+        this.heroEl = el;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.removeAttribute('autoplay'); el.pause(); }
+        el.addEventListener('loadeddata', () => this.setState({ heroReady: true }), { once: true });
+        if (el.readyState >= 2) this.setState({ heroReady: true });
+      },
+      // Card Curtain Reveal: en pantallas táctiles, el toque levanta/baja la cortina (en desktop lo hace :hover).
+      curtainRef: (el) => {
+        if (!el || el._curtainBound) return;
+        el._curtainBound = true;
+        el.addEventListener('click', (e) => {
+          if (!window.matchMedia('(hover: none)').matches) return;   // desktop usa hover
+          if (e.target.closest('a')) return;                          // si tocó el enlace, dejar navegar
+          e.preventDefault();
+          el.classList.toggle('is-open');
+        });
+      },
+      // Video de fondo del hero: fuerza muted/loop y reproduce (autoplay requiere muted).
+      bgVideoRef: (el) => {
+        if (!el || el === this.bgVideoEl) return;
+        this.bgVideoEl = el;
+        el.muted = true; el.defaultMuted = true; el.loop = true; el.playsInline = true; el.setAttribute('muted', '');
+        const play = () => { const p = el.play(); if (p && p.catch) p.catch(() => {}); };
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.removeAttribute('autoplay'); el.pause(); return; }
+        play();
+        el.addEventListener('loadeddata', play, { once: true });
+        el.addEventListener('canplay', play, { once: true });
+      },
+
+      isMobile: st.isMobile, isDesktop: !st.isMobile,
+      isHome: st.route === 'home', isCatalog: st.route === 'catalogo', isProduct: st.route === 'producto', isAbout: st.route === 'nosotros', isContact: st.route === 'contacto',
+      megaOpen: st.megaOpen && !st.isMobile,
+      openMega: () => { if (this._megaTimer) { clearTimeout(this._megaTimer); this._megaTimer = null; } this.setState({ megaOpen: true }); },
+      closeMega: () => { if (this._megaTimer) clearTimeout(this._megaTimer); this._megaTimer = setTimeout(() => { this._megaTimer = null; this.setState({ megaOpen: false }); }, 220); },
+      openMenu: () => this.setState({ menuOpen: true }),
+      openSearch: () => this.setState({ searchOpen: true, megaOpen: false }),
+      openCart: () => this.setState({ cartOpen: true, megaOpen: false }),
+      closeAll: () => this.setState({ cartOpen: false, searchOpen: false, menuOpen: false, megaOpen: false }),
+      goHome: this.nav('home'),
+      goAbout: this.nav('nosotros'),
+      goContact: this.nav('contacto'),
+      goCatalog: this.nav('catalogo', { f: Object.assign({}, st.f, { cat: 'todas', line: 'todas', nuevo: false }) }),
+      goCollections: this.nav('home'),
+      goEsencial: this.nav('catalogo', { f: Object.assign({}, st.f, { line: 'Vemar Esencial', cat: 'todas' }) }),
+      goSignature: this.nav('catalogo', { f: Object.assign({}, st.f, { line: 'Vemar Signature', cat: 'todas' }) }),
+      goNuevos: this.nav('catalogo', { f: Object.assign({}, st.f, { nuevo: true }), sort: 'novedad' }),
+      goCatalogFromCart: this.nav('catalogo'),
+
+      cartCount: st.cart.reduce((t, c) => t + c.qty, 0),
+      badgeTransform: st.pulse ? 'scale(1.35)' : 'scale(1)',
+
+      categories: CATS.map((c) => ({ name: c.name, img: c.img || '', go: this.nav('catalogo', { f: Object.assign({}, st.f, { cat: c.key, line: 'todas' }) }),
+        enterImg: () => {
+          const img = this._megaImg;
+          if (!img || !c.img || img.dataset.cat === c.key) return;
+          img.dataset.cat = c.key;
+          img.style.opacity = '0';
+          clearTimeout(this._megaSwap);
+          this._megaSwap = setTimeout(() => { img.src = c.img; img.style.objectPosition = c.imgPos || 'center 45%'; requestAnimationFrame(() => { img.style.opacity = '1'; }); }, 200);
+        } })),
+      megaImgRef: (el) => {
+        if (!el || el === this._megaImg) return;
+        this._megaImg = el;
+        // Precarga las imágenes de categoría para que el cambio sea instantáneo/suave.
+        CATS.forEach((c) => { if (c.img) { const im = new Image(); im.src = c.img; } });
+      },
+      categoryTiles: CATS.map((c) => {
+        const hovered = st.hover === 'cat-' + c.key;
+        return {
+          name: c.name, img: c.img || '', noImg: !c.img, slot: c.slot || '', imgRef: this.imgRef(c.img || ''),
+          zoom: hovered ? 'scale(1.06)' : 'scale(1)',
+          linkOpacity: hovered ? 1 : 0,
+          linkShift: hovered ? 'translateY(0)' : 'translateY(8px)',
+          enter: () => this.setState({ hover: 'cat-' + c.key }),
+          leave: () => this.setState({ hover: null }),
+          go: this.nav('catalogo', { f: Object.assign({}, st.f, { cat: c.key, line: 'todas' }) })
+        };
+      }),
+
+      featured: PRODUCTS.slice(0, 8).map((x) => this.decorate(x)),
+      curated: CURATED.map((id) => this.find(id)).map((x) => {
+        const d = this.decorate(x);
+        const hovered = st.hover === x.id;
+        d.zoom104 = hovered ? 'scale(1.04)' : 'scale(1)';
+        d.lineW = hovered ? '58px' : '20px';
+        d.favScale = st.favs[x.id] ? 'scale(1.15)' : 'scale(1)';
+        d.catName = { anillos: 'Anillos', aros: 'Aros', cadenas: 'Cadenas', pulseras: 'Pulseras', dijes: 'Dijes', sets: 'Sets' }[x.cat] || '';
+        return d;
+      }),
+      rowH: 'clamp(500px,78vh,680px)',
+      coverW: st.isMobile ? 'min(80vw,380px)' : '45vw',
+      cardW: st.isMobile ? 'min(62vw,300px)' : '32vw',
+      pinRef: (el) => { this.pin = el; this.installTrackDriver(); this.measureTrack(); },
+      trackRef: (el) => { this.track = el; this.measureTrack(); },
+      rowRef: (el) => {
+        if (!el || el === this.row) return;
+        this.row = el;
+        this.setupDrag(el);
+      },
+      scrollExpandRef: (el) => { if (el && !el._seBound) { el._seBound = true; this.setupScrollExpand(el); } },
+      arrowPrevRef: (el) => { if (el && el !== this._arrowPrev) { this._arrowPrev = el; el.addEventListener('click', (e) => { e.preventDefault(); this.selStep(-1); }); this.updateArrows(); } },
+      arrowNextRef: (el) => { if (el && el !== this._arrowNext) { this._arrowNext = el; el.addEventListener('click', (e) => { e.preventDefault(); this.selStep(1); }); this.updateArrows(); } },
+      newest: PRODUCTS.filter((x) => x.isNew).concat(PRODUCTS.filter((x) => !x.isNew).slice(0, 2)).map((x) => this.decorate(x)),
+      sliderRef: (el) => { this.slider = el; },
+      slidePrev: () => { if (this.slider) this.slider.scrollBy({ left: -this.slider.clientWidth * 0.7, behavior: 'smooth' }); },
+      slideNext: () => { if (this.slider) this.slider.scrollBy({ left: this.slider.clientWidth * 0.7, behavior: 'smooth' }); },
+
+      catalogTitle: st.f.line !== 'todas' ? st.f.line : (st.f.nuevo ? 'Recién llegados' : catName[st.f.cat]),
+      resultsLabel: catalogList.length === 1 ? '1 pieza' : catalogList.length + ' piezas',
+      catalogList: catalogList.map((x) => this.decorate(x)),
+      hasResults: catalogList.length > 0, noResults: catalogList.length === 0,
+      filtersOpen: st.filtersOpen, filtersLabel: st.filtersOpen ? 'Ocultar filtros' : 'Filtros',
+      toggleFilters: () => this.setState((s) => ({ filtersOpen: !s.filtersOpen })),
+      sort: st.sort, setSort: (e) => this.setState({ sort: e.target.value }),
+      filterCats: [{ key: 'todas', label: 'Todas' }].concat(CATS.map((c) => ({ key: c.key, label: c.name }))).map((c) => ({
+        label: c.label, color: st.f.cat === c.key ? '#B9A078' : '#333333', set: () => this.setF('cat', c.key)
+      })),
+      filterLines: [{ k: 'todas', l: 'Todas las líneas' }, { k: 'Vemar Esencial', l: 'Vemar Esencial' }, { k: 'Vemar Signature', l: 'Vemar Signature' }].map((x) => ({
+        label: x.l, color: st.f.line === x.k ? '#B9A078' : '#333333', set: () => this.setF('line', x.k)
+      })),
+      filterMaterials: [{ k: 'todos', l: 'Todos' }, { k: 'oro', l: 'Oro laminado' }, { k: 'plata', l: 'Plata 925' }, { k: 'circon', l: 'Con piedras' }].map((x) => Object.assign({ label: x.l, set: () => this.setF('material', x.k) }, chip(st.f.material === x.k))),
+      filterColors: [{ k: 'todos', l: 'Todos' }, { k: 'dorado', l: 'Dorado' }, { k: 'plata', l: 'Plateado' }].map((x) => Object.assign({ label: x.l, set: () => this.setF('color', x.k) }, chip(st.f.color === x.k))),
+      priceMin: st.f.min, priceMax: st.f.max,
+      setPriceMin: (e) => this.setF('min', e.target.value),
+      setPriceMax: (e) => this.setF('max', e.target.value),
+      onlyStock: st.f.stock, onlyNew: st.f.nuevo,
+      toggleStock: () => this.setF('stock', !st.f.stock),
+      toggleNew: () => this.setF('nuevo', !st.f.nuevo),
+      clearFilters: () => this.setState({ f: { cat: 'todas', line: 'todas', min: '', max: '', material: 'todos', color: 'todos', stock: false, nuevo: false }, sort: 'relevancia' }),
+
+      product: this.decorate(p),
+      gallery: galleryImgs.map((g, i) => ({
+        img: g || '', noImg: !g, slot: gallerySlots[i] || '', imgRef: this.imgRef(g || ''), border: st.galleryIndex === i ? '#171717' : '#E9E7E2',
+        select: () => this.setState({ galleryIndex: i })
+      })),
+      activeImage: galleryImgs[st.galleryIndex] || '',
+      activeImageRef: this.imgRef(galleryImgs[st.galleryIndex] || ''),
+      activeIsPhoto: !!galleryImgs[st.galleryIndex],
+      activeIsSlot: !galleryImgs[st.galleryIndex],
+      activeSlot: gallerySlots[st.galleryIndex] || p.slot || '',
+      zoomScale: st.zoom ? 'scale(1.85)' : 'scale(1)',
+      zoomOrigin: st.origin,
+      onZoomMove: (e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        this.setState({ zoom: true, origin: (((e.clientX - r.left) / r.width) * 100).toFixed(1) + '% ' + (((e.clientY - r.top) / r.height) * 100).toFixed(1) + '%' });
+      },
+      onZoomLeave: () => this.setState({ zoom: false, origin: '50% 50%' }),
+      variants: (p.variants || []).map((v) => Object.assign({ label: v, select: () => this.setState({ variant: v }) }, chip(variant === v))),
+      qty: st.qty,
+      incQty: () => this.setState((s) => ({ qty: s.qty + 1 })),
+      decQty: () => this.setState((s) => ({ qty: Math.max(1, s.qty - 1) })),
+      addCurrent: () => this.add(p, st.qty, variant),
+      productWaHref: this.waLink('Hola, Vemar Importados. Quiero consultar por esta pieza:\n\n• Producto: ' + p.name + '\n  Código: ' + p.sku + '\n  Variante: ' + variant + '\n  Precio: ' + this.gs(p.price) + '\n\n¿Está disponible?'),
+      specs: [
+        { k: 'Código', v: p.sku }, { k: 'Material', v: p.material }, { k: 'Color', v: p.color },
+        { k: 'Medidas', v: p.medidas }, { k: 'Línea', v: p.line }, { k: 'Disponibilidad', v: p.stock ? 'En stock' : 'A pedido · 7 a 10 días' }
+      ],
+      related: PRODUCTS.filter((x) => x.id !== p.id && (x.cat === p.cat || x.line === p.line)).slice(0, 4).map((x) => this.decorate(x)),
+
+      cartOpen: st.cartOpen, searchOpen: st.searchOpen, menuOpen: st.menuOpen, toast: st.toast,
+      cartEmpty: st.cart.length === 0, cartHasItems: st.cart.length > 0,
+      cart: st.cart.map((c) => {
+        const it = this.find(c.id);
+        return {
+          name: it.name, line: it.line, img: it.img || '', noImg: !it.img, imgRef: this.imgRef(it.img || ''),
+          meta: c.variant + ' · ' + it.sku, qty: c.qty, lineTotal: this.gs(it.price * c.qty),
+          inc: () => this.setState((s) => ({ cart: s.cart.map((x) => x.key === c.key ? Object.assign({}, x, { qty: x.qty + 1 }) : x) })),
+          dec: () => this.setState((s) => ({ cart: s.cart.map((x) => x.key === c.key ? Object.assign({}, x, { qty: Math.max(1, x.qty - 1) }) : x) })),
+          remove: () => this.setState((s) => ({ cart: s.cart.filter((x) => x.key !== c.key) }))
+        };
+      }),
+      subtotalFmt: this.gs(this.subtotal()),
+      cartWaHref: this.waLink(this.orderText()),
+      form: st.form,
+      setNombre: (e) => this.setForm('nombre', e.target.value),
+      setTelefono: (e) => this.setForm('telefono', e.target.value),
+      setCiudad: (e) => this.setForm('ciudad', e.target.value),
+      setEntrega: (e) => this.setForm('entrega', e.target.value),
+      setObs: (e) => this.setForm('obs', e.target.value),
+
+      query: st.query, setQuery: (e) => this.setState({ query: e.target.value }),
+      searchHint: q ? (results.length ? results.length + ' resultados' : 'Sin resultados para “' + st.query + '”') : 'Sugerencias',
+      searchResults: results.map((x) => this.decorate(x))
+    };
+  }
+}
+</script>
+</body>
+</html>
