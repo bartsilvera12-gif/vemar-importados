@@ -248,7 +248,7 @@
           </div>
         </div>
 
-        <div ref="{{ rowRef }}" style="position:relative;height:{{ rowH }};overflow:hidden;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-y">
+        <div ref="{{ rowRef }}" style="position:relative;height:{{ rowH }};overflow:hidden;cursor:default;user-select:none;-webkit-user-select:none;touch-action:pan-y">
           <div style="position:absolute;top:0;left:0;bottom:0;width:clamp(20px,5vw,64px);background:#FFFFFF;z-index:5;pointer-events:none"></div>
           <div ref="{{ trackRef }}" style="display:flex;align-items:stretch;gap:clamp(10px,1vw,18px);padding:0 clamp(20px,5vw,64px);height:100%;will-change:transform">
 
@@ -1580,21 +1580,23 @@ class Component extends DCLogic {
     this.targetPos = this.pos;
     row.addEventListener('dragstart', (e) => e.preventDefault());
 
-    // Arrastre con cursor (mouse) o dedo (touch): el carrusel se mueve con el cursor.
-    row.style.cursor = 'grab';
+    // Mouse (desktop): el carrusel sigue la posición del cursor (hover-pan, sin arrastrar).
+    // Touch (celular): arrastre con el dedo.
+    row.style.cursor = 'default';
 
     let dragging = false, moved = false, startX = 0, startPos = 0, lastX = 0, lastT = 0, vel = 0, pid = null;
     const stopMomentum = () => { if (this._momentum) { cancelAnimationFrame(this._momentum); this._momentum = null; } };
     row.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
       stopMomentum();
       dragging = true; moved = false; pid = e.pointerId;
       startX = e.clientX; startPos = this.pos;
       lastX = e.clientX; lastT = e.timeStamp; vel = 0;
     });
     row.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
+      if (e.pointerType === 'mouse' || !dragging) return;
       const dx = e.clientX - startX;
-      if (!moved) { if (Math.abs(dx) < 5) return; moved = true; row.style.cursor = 'grabbing'; try { row.setPointerCapture(pid); } catch (err) {} }
+      if (!moved) { if (Math.abs(dx) < 4) return; moved = true; try { row.setPointerCapture(pid); } catch (err) {} }
       this.pos = startPos - dx;                        // arrastrar a la izquierda avanza al siguiente
       this.targetPos = this.pos;
       this.renderSel();
@@ -1604,9 +1606,9 @@ class Component extends DCLogic {
       e.preventDefault();
     });
     const end = (e) => {
+      if (e && e.pointerType === 'mouse') return;
       if (!dragging) return;
       dragging = false;
-      row.style.cursor = 'grab';
       if (pid != null) { try { row.releasePointerCapture(pid); } catch (err) {} pid = null; }
       if (!moved) return;
       row.dataset.dragged = '1';
@@ -1643,6 +1645,38 @@ class Component extends DCLogic {
     row.addEventListener('pointercancel', end);
     // Evita que un arrastre (touch) dispare el clic de los enlaces/botones internos.
     row.addEventListener('click', (e) => { if (row.dataset.dragged) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+    // ---------- Desktop: hover-pan — el carrusel se mueve siguiendo el cursor (sin arrastrar) ----------
+    let hTarget = null, hRaf = null, hLeaving = false;
+    const hLoop = () => {
+      if (hTarget == null) { hRaf = null; return; }
+      const mx = this.maxPos();
+      this.pos += (hTarget - this.pos) * 0.1;                 // seguimiento suave (menos sensible)
+      const done = Math.abs(hTarget - this.pos) < 0.4;
+      if (done) this.pos = hTarget;
+      this.pos = Math.max(0, Math.min(mx, this.pos));
+      this.targetPos = this.pos;
+      this.renderSel();
+      if (done && hLeaving) { hTarget = null; hRaf = null; return; }
+      hRaf = requestAnimationFrame(hLoop);
+    };
+    const hStart = () => { if (!hRaf) hRaf = requestAnimationFrame(hLoop); };
+    row.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || dragging) return;
+      const r = row.getBoundingClientRect();
+      let frac = (e.clientX - r.left) / (r.width || 1);
+      frac = Math.max(0, Math.min(1, frac));
+      hLeaving = false;
+      hTarget = frac * this.maxPos();
+      hStart();
+    });
+    row.addEventListener('pointerleave', (e) => {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      const unit = this.selMetrics().unit;
+      hTarget = unit ? Math.round(this.pos / unit) * unit : 0;   // asienta en la tarjeta más cercana
+      hLeaving = true;
+      hStart();
+    });
   }
   show(el) { el.style.opacity = '1'; el.style.transform = 'none'; el.dataset.revealHidden = ''; }
   bindReveal() {
