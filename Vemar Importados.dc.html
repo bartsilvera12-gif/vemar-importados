@@ -80,6 +80,8 @@
   /* Carrusel que se desplaza pero sin barra de scroll visible. */
   .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
   .no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
+  /* Selección Vemar: evita que el arrastre nativo de enlaces/imágenes robe el gesto de arrastre. */
+  #seleccion a, #seleccion img { -webkit-user-drag: none; user-select: none; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   }
