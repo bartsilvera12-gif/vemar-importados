@@ -246,7 +246,7 @@
           </div>
         </div>
 
-        <div ref="{{ rowRef }}" style="position:relative;height:{{ rowH }};overflow:hidden;cursor:default;user-select:none;-webkit-user-select:none;touch-action:pan-y">
+        <div ref="{{ rowRef }}" style="position:relative;height:{{ rowH }};overflow:hidden;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-y">
           <div style="position:absolute;top:0;left:0;bottom:0;width:clamp(20px,5vw,64px);background:#FFFFFF;z-index:5;pointer-events:none"></div>
           <div ref="{{ trackRef }}" style="display:flex;align-items:stretch;gap:clamp(10px,1vw,18px);padding:0 clamp(20px,5vw,64px);height:100%;will-change:transform">
 
@@ -1578,23 +1578,21 @@ class Component extends DCLogic {
     this.targetPos = this.pos;
     row.addEventListener('dragstart', (e) => e.preventDefault());
 
-    // Desktop: la navegación es por flechas (ver selPrev/selNext). Sin paneo por cursor.
-    row.style.cursor = 'default';
+    // Arrastre con cursor (mouse) o dedo (touch): el carrusel se mueve con el cursor.
+    row.style.cursor = 'grab';
 
-    // ---------- Mobile: arrastre con el dedo ----------
     let dragging = false, moved = false, startX = 0, startPos = 0, lastX = 0, lastT = 0, vel = 0, pid = null;
     const stopMomentum = () => { if (this._momentum) { cancelAnimationFrame(this._momentum); this._momentum = null; } };
     row.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'mouse') return;          // mouse no arrastra
       stopMomentum();
       dragging = true; moved = false; pid = e.pointerId;
       startX = e.clientX; startPos = this.pos;
       lastX = e.clientX; lastT = e.timeStamp; vel = 0;
     });
     row.addEventListener('pointermove', (e) => {
-      if (e.pointerType === 'mouse' || !dragging) return;
+      if (!dragging) return;
       const dx = e.clientX - startX;
-      if (!moved) { if (Math.abs(dx) < 4) return; moved = true; try { row.setPointerCapture(pid); } catch (err) {} }
+      if (!moved) { if (Math.abs(dx) < 5) return; moved = true; row.style.cursor = 'grabbing'; try { row.setPointerCapture(pid); } catch (err) {} }
       this.pos = startPos - dx;                        // arrastrar a la izquierda avanza al siguiente
       this.targetPos = this.pos;
       this.renderSel();
@@ -1604,9 +1602,9 @@ class Component extends DCLogic {
       e.preventDefault();
     });
     const end = (e) => {
-      if (e && e.pointerType === 'mouse') return;
       if (!dragging) return;
       dragging = false;
+      row.style.cursor = 'grab';
       if (pid != null) { try { row.releasePointerCapture(pid); } catch (err) {} pid = null; }
       if (!moved) return;
       row.dataset.dragged = '1';
