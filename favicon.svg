@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <style>
+    .m { stroke: #171717; }
+    @media (prefers-color-scheme: dark) { .m { stroke: #F1EAD9; } }
+  </style>
+  <circle class="m" cx="100" cy="100" r="90" fill="none" stroke-width="7"/>
+  <g class="m" fill="none" stroke-width="6.5" stroke-linejoin="round" stroke-linecap="round" transform="translate(0 -8)">
+    <path d="M24 100 L54 50 L146 50 L176 100 L100 186 Z"/>
+    <path d="M24 100 H176"/>
+    <path d="M54 50 L70 100 M146 50 L130 100 M100 50 L70 100 M100 50 L130 100"/>
+    <path d="M84 100 L100 74 L116 100"/>
+  </g>
+</svg>
