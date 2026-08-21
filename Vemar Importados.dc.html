@@ -439,8 +439,9 @@
 
   <!-- ══════════ CATÁLOGO ══════════ -->
   <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
-  <main id="joyeria" style="animation:vFadeIn .6s cubic-bezier(.22,1,.36,1) both">
-    <div style="max-width:1440px;margin:0 auto;padding:clamp(38px,5vw,72px) clamp(20px,5vw,64px) clamp(60px,8vw,110px)">
+  <main id="joyeria" style="position:relative;animation:vFadeSoft .6s ease both">
+    <div ref="{{ wavesCatalogRef }}" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none"></div>
+    <div style="position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:clamp(38px,5vw,72px) clamp(20px,5vw,64px) clamp(60px,8vw,110px)">
       <div style="margin-bottom:clamp(28px,4vw,48px)">
         <p style="margin:0 0 14px;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:#B9A078">Catálogo</p>
         <h1 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(32px,4.2vw,56px)">{{ catalogTitle }}</h1>
@@ -1323,12 +1324,12 @@ class Component extends DCLogic {
     if (this._waves) { this._waves.dispose(); this._waves = null; }
     this.revealAll();
   }
-  mountWaves(el) {
+  mountWaves(el, opts) {
     if (!el) { if (this._waves) { this._waves.dispose(); this._waves = null; } return; }
     if (el._wavesInit) return;
     el._wavesInit = true;
     if (this._waves) { this._waves.dispose(); this._waves = null; }
-    this._waves = createGradientWaves(el, {
+    this._waves = createGradientWaves(el, opts || {
       horizonColor: '#7f783a', waveColor: '#f1f1f1', crestColor: '#FFFFFF',
       speed: 0.4, amplitude: 2.5, waveScale: 0.6, waveRatio: 0.9, swell: 35, turbulence: 20,
       tilt: 1.11, zoom: 1.0, height: 5.5, fogDepth: 15, detail: 'medium', brightness: 1.0, opacity: 1.0,
@@ -1850,6 +1851,12 @@ class Component extends DCLogic {
       },
       scrollExpandRef: (el) => { if (el && !el._seBound) { el._seBound = true; this.setupScrollExpand(el); } },
       wavesRef: (el) => this.mountWaves(el),
+      wavesCatalogRef: (el) => this.mountWaves(el, {
+        horizonColor: '#d3ccac', waveColor: '#f7f7f3', crestColor: '#FFFFFF',
+        speed: 0.16, amplitude: 2.0, waveScale: 0.6, waveRatio: 0.9, swell: 26, turbulence: 14,
+        tilt: 1.11, zoom: 1.0, height: 5.5, fogDepth: 18, detail: 'medium', brightness: 1.06, opacity: 0.5,
+        grain: true, grainIntensity: 0.04, mouseInteraction: true, parallaxStrength: 0.4
+      }),
       arrowPrevRef: (el) => { if (el && el !== this._arrowPrev) { this._arrowPrev = el; el.addEventListener('click', (e) => { e.preventDefault(); this.selStep(-1); }); this.updateArrows(); } },
       arrowNextRef: (el) => { if (el && el !== this._arrowNext) { this._arrowNext = el; el.addEventListener('click', (e) => { e.preventDefault(); this.selStep(1); }); this.updateArrows(); } },
       newest: PRODUCTS.filter((x) => x.isNew).concat(PRODUCTS.filter((x) => !x.isNew).slice(0, 2)).map((x) => this.decorate(x)),
