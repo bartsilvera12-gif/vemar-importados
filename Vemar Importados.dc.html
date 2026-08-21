@@ -342,24 +342,24 @@
       </div>
     </section>
 
-    <section style="padding:clamp(72px,9vw,124px) 0;max-width:1440px;margin:0 auto">
+    <section ref="{{ newestRevealRef }}" style="padding:clamp(72px,9vw,124px) 0;max-width:1440px;margin:0 auto">
       <div data-reveal style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;padding:0 clamp(20px,5vw,64px);margin-bottom:clamp(30px,4vw,50px)">
         <div>
           <p class="script-accent" style="margin:0 0 8px;color:#B9A078">Novedades</p>
           <h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(28px,3.4vw,44px)">Recién llegados</h2>
         </div>
         <div style="display:flex;gap:10px">
-          <button onClick="{{ slidePrev }}" aria-label="Anterior" style="width:44px;height:44px;border:1px solid #E9E7E2;background:#FFFFFF;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .4s ease,color .4s ease" style-hover="border-color:#171717;color:#B9A078">
+          <button onClick="{{ slidePrev }}" aria-label="Anterior" style="width:46px;height:46px;border-radius:50%;border:1px solid #E9E7E2;background:#FFFFFF;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .4s ease,color .4s ease,background .4s ease" style-hover="border-color:#171717;color:#B9A078;background:#FBFAF7">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14.5 5 8 12l6.5 7"></path></svg>
           </button>
-          <button onClick="{{ slideNext }}" aria-label="Siguiente" style="width:44px;height:44px;border:1px solid #E9E7E2;background:#FFFFFF;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .4s ease,color .4s ease" style-hover="border-color:#171717;color:#B9A078">
+          <button onClick="{{ slideNext }}" aria-label="Siguiente" style="width:46px;height:46px;border-radius:50%;border:1px solid #E9E7E2;background:#FFFFFF;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .4s ease,color .4s ease,background .4s ease" style-hover="border-color:#171717;color:#B9A078;background:#FBFAF7">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M9.5 5 16 12l-6.5 7"></path></svg>
           </button>
         </div>
       </div>
       <div ref="{{ sliderRef }}" style="display:flex;gap:clamp(14px,2vw,28px);overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x mandatory;padding:4px clamp(20px,5vw,64px);-webkit-overflow-scrolling:touch">
         <sc-for list="{{ newest }}" as="p" hint-placeholder-count="0">
-          <article onMouseEnter="{{ p.enter }}" onMouseLeave="{{ p.leave }}" style="flex:0 0 clamp(230px,26vw,320px);scroll-snap-align:start">
+          <article data-newest-card onMouseEnter="{{ p.enter }}" onMouseLeave="{{ p.leave }}" style="flex:0 0 clamp(230px,26vw,320px);scroll-snap-align:start">
             <div style="position:relative;overflow:hidden;background:#F8F7F4;aspect-ratio:4/5">
               <a href="#producto" onClick="{{ p.open }}" style="position:absolute;inset:0;display:block">
                 <sc-if value="{{ p.img }}" hint-placeholder-val="{{ false }}">
@@ -1315,6 +1315,35 @@ class Component extends DCLogic {
     if (this._waves) { this._waves.dispose(); this._waves = null; }
     this.revealAll();
   }
+  setupStagger(el) {
+    // Entrada escalonada de las tarjetas de "Recién llegados" al entrar en viewport
+    // (estilo ServiceCarousel). Robusto ante re-renders: el <article> tiene estilo
+    // estático, así que las mutaciones inline sobreviven. Limpia la animación al
+    // terminar para no dejar transform "pinneado".
+    if (!el || el._staggerBound) return;
+    el._staggerBound = true;
+    const cards = () => Array.prototype.slice.call(el.querySelectorAll('[data-newest-card]'));
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    cards().forEach((c) => { c.style.opacity = '0'; });
+    let done = false;
+    const play = () => {
+      if (done) return; done = true;
+      cards().forEach((c, i) => {
+        c.style.animation = 'vRise .7s cubic-bezier(.22,1,.36,1) both';
+        c.style.animationDelay = (i * 0.09) + 's';
+        c.addEventListener('animationend', () => { c.style.animation = 'none'; c.style.opacity = '1'; c.style.transform = 'none'; }, { once: true });
+      });
+    };
+    let io = null;
+    try {
+      io = new IntersectionObserver((ents) => {
+        ents.forEach((e) => { if (e.isIntersecting) { play(); if (io) io.disconnect(); } });
+      }, { threshold: 0.14 });
+      io.observe(el);
+    } catch (err) { play(); }
+    setTimeout(() => { if (!done) { play(); if (io) io.disconnect(); } }, 4000);
+  }
   mountWaves(el, opts) {
     // Ignorar llamadas con null: el framework re-ejecuta los refs en cada render
     // (sobre todo el catálogo, que re-renderiza al pasar el mouse por los productos).
@@ -1845,6 +1874,7 @@ class Component extends DCLogic {
       },
       scrollExpandRef: (el) => { if (el && !el._seBound) { el._seBound = true; this.setupScrollExpand(el); } },
       wavesRef: (el) => this.mountWaves(el),
+      newestRevealRef: (el) => this.setupStagger(el),
       wavesCatalogRef: (el) => this.mountWaves(el, {
         horizonColor: '#a89a58', waveColor: '#f2f2ec', crestColor: '#FFFFFF',
         speed: 0.16, amplitude: 2.2, waveScale: 0.6, waveRatio: 0.9, swell: 30, turbulence: 16,
