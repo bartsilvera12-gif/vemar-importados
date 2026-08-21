@@ -73,6 +73,9 @@
   @keyframes vSlideRight { from { transform: translateX(100%); } to { transform: none; } }
   @keyframes vSlideLeft { from { transform: translateX(-100%); } to { transform: none; } }
   @keyframes vDropDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+  @keyframes vFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+  @keyframes vLineGrow { from { width: 0; } to { width: 64px; } }
+  @keyframes vRise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   }
@@ -673,17 +676,21 @@
 
   <!-- ══════════ NOSOTROS ══════════ -->
   <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
-  <main id="nosotros" style="animation:vFadeIn .6s cubic-bezier(.22,1,.36,1) both">
-    <section style="max-width:920px;margin:0 auto;padding:clamp(60px,8vw,128px) clamp(20px,5vw,64px) clamp(36px,5vw,60px);text-align:center">
-      <p style="margin:0 0 14px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(30px,3.4vw,48px);line-height:1;color:#B9A078">Nosotros</p>
-      <h1 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(34px,4.8vw,66px);line-height:1.05;letter-spacing:-0.01em;text-wrap:pretty">Joyas elegidas una por una</h1>
-      <p style="margin:26px auto 0;max-width:600px;font-size:15.5px;line-height:1.85;color:#4A4A4A;font-weight:300">Vemar Importados nació en Paraguay con una idea simple: que una joya no tiene que ser inalcanzable para ser especial. Importamos y seleccionamos piezas por su terminación, su peso y la forma en que se ven puestas.</p>
+  <main id="nosotros" style="position:relative;overflow:hidden;background:linear-gradient(180deg,#F5F0E7 0%,#EFE7DA 46%,#F2ECDF 100%);animation:vFadeIn .6s cubic-bezier(.22,1,.36,1) both">
+    <svg viewBox="0 0 200 200" aria-hidden="true" style="position:absolute;top:clamp(-70px,-6vw,-30px);right:clamp(-90px,-6vw,-40px);width:min(52vw,440px);height:auto;color:#B9A078;opacity:.06;pointer-events:none;z-index:0;animation:vFloat 10s ease-in-out infinite"><use href="#vemar-mark"></use></svg>
+    <svg viewBox="0 0 200 200" aria-hidden="true" style="position:absolute;bottom:6%;left:clamp(-100px,-7vw,-50px);width:min(38vw,320px);height:auto;color:#B9A078;opacity:.045;pointer-events:none;z-index:0;animation:vFloat 13s ease-in-out infinite reverse"><use href="#vemar-mark"></use></svg>
+
+    <section style="position:relative;z-index:1;max-width:920px;margin:0 auto;padding:clamp(60px,8vw,128px) clamp(20px,5vw,64px) clamp(36px,5vw,60px);text-align:center">
+      <p style="margin:0 0 14px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(30px,3.4vw,48px);line-height:1;color:#B9A078;animation:vRise .9s cubic-bezier(.22,1,.36,1) both;animation-delay:.05s">Nosotros</p>
+      <h1 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(34px,4.8vw,66px);line-height:1.05;letter-spacing:-0.01em;text-wrap:pretty;animation:vRise 1s cubic-bezier(.22,1,.36,1) both;animation-delay:.16s">Joyas elegidas una por una</h1>
+      <span style="display:block;height:1px;background:#B9A078;margin:28px auto 0;animation:vLineGrow 1.1s cubic-bezier(.22,1,.36,1) both;animation-delay:.42s"></span>
+      <p style="margin:28px auto 0;max-width:600px;font-size:15.5px;line-height:1.85;color:#4A4A4A;font-weight:300;animation:vRise 1s cubic-bezier(.22,1,.36,1) both;animation-delay:.52s">Vemar Importados nació en Paraguay con una idea simple: que una joya no tiene que ser inalcanzable para ser especial. Importamos y seleccionamos piezas por su terminación, su peso y la forma en que se ven puestas.</p>
     </section>
 
-    <section style="padding:0 clamp(16px,4vw,52px)">
-      <div style="position:relative;overflow:hidden;height:min(66vh,600px);background:#141414">
-        <img src="uploads/banner.png" alt="Vemar Importados" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:center 42%;transition:transform 1.6s cubic-bezier(.22,1,.36,1)" style-hover="transform:scale(1.05)">
-        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(12,12,12,.55),rgba(12,12,12,0) 46%)"></div>
+    <section style="position:relative;z-index:1;padding:0 clamp(16px,4vw,52px)">
+      <div data-reveal style="position:relative;overflow:hidden;height:min(66vh,600px);background:#141414;box-shadow:0 40px 70px -50px rgba(23,23,23,.5)">
+        <img data-parallax="0.05" src="uploads/banner.png" alt="Vemar Importados" draggable="false" style="width:100%;height:118%;object-fit:cover;object-position:center 42%">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(12,12,12,.6),rgba(12,12,12,0) 46%)"></div>
         <div style="position:absolute;left:0;bottom:0;padding:clamp(26px,3vw,46px);display:flex;align-items:center;gap:14px">
           <span style="width:34px;height:1px;background:#E8D9BE;display:block"></span>
           <span style="font-size:11px;letter-spacing:0.26em;text-transform:uppercase;color:#FFFFFF">Asunción · Paraguay</span>
@@ -691,27 +698,27 @@
       </div>
     </section>
 
-    <section style="max-width:1200px;margin:0 auto;padding:clamp(58px,7vw,116px) clamp(20px,5vw,64px);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(34px,4vw,72px)">
-      <div>
+    <section data-reveal style="position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:clamp(58px,7vw,116px) clamp(20px,5vw,64px);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(22px,2.6vw,36px)">
+      <div style="background:rgba(255,255,255,.72);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);border:1px solid rgba(185,160,120,.22);padding:clamp(30px,3vw,44px);box-shadow:0 30px 50px -44px rgba(23,23,23,.3);transition:transform .6s cubic-bezier(.22,1,.36,1),box-shadow .6s ease,border-color .6s ease" style-hover="transform:translateY(-7px);box-shadow:0 44px 66px -44px rgba(185,160,120,.55);border-color:rgba(185,160,120,.5)">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-          <span style="font-family:'Playfair Display',serif;font-size:22px;color:#B9A078">01</span>
-          <span style="flex:1;height:1px;background:#E9E7E2"></span>
+          <span style="font-family:'Playfair Display',serif;font-size:26px;color:#B9A078">01</span>
+          <span style="flex:1;height:1px;background:linear-gradient(90deg,#B9A078,rgba(185,160,120,0))"></span>
         </div>
         <h2 style="margin:0 0 14px;font-family:'Playfair Display',serif;font-weight:400;font-size:27px;line-height:1.1">Cómo elegimos</h2>
         <p style="margin:0;font-size:14px;line-height:1.85;color:#4A4A4A;font-weight:300">Trabajamos con proveedores que conocemos. Revisamos broches, uniones y baño antes de publicar una pieza, y no listamos nada que no usaríamos nosotros.</p>
       </div>
-      <div>
+      <div style="background:rgba(255,255,255,.72);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);border:1px solid rgba(185,160,120,.22);padding:clamp(30px,3vw,44px);box-shadow:0 30px 50px -44px rgba(23,23,23,.3);transition:transform .6s cubic-bezier(.22,1,.36,1),box-shadow .6s ease,border-color .6s ease" style-hover="transform:translateY(-7px);box-shadow:0 44px 66px -44px rgba(185,160,120,.55);border-color:rgba(185,160,120,.5)">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-          <span style="font-family:'Playfair Display',serif;font-size:22px;color:#B9A078">02</span>
-          <span style="flex:1;height:1px;background:#E9E7E2"></span>
+          <span style="font-family:'Playfair Display',serif;font-size:26px;color:#B9A078">02</span>
+          <span style="flex:1;height:1px;background:linear-gradient(90deg,#B9A078,rgba(185,160,120,0))"></span>
         </div>
         <h2 style="margin:0 0 14px;font-family:'Playfair Display',serif;font-weight:400;font-size:27px;line-height:1.1">Cómo comprás</h2>
         <p style="margin:0;font-size:14px;line-height:1.85;color:#4A4A4A;font-weight:300">Armás tu pedido en el sitio y lo cerramos por WhatsApp. Ahí confirmamos disponibilidad, forma de pago y envío o retiro, con una persona del equipo.</p>
       </div>
-      <div>
+      <div style="background:rgba(255,255,255,.72);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);border:1px solid rgba(185,160,120,.22);padding:clamp(30px,3vw,44px);box-shadow:0 30px 50px -44px rgba(23,23,23,.3);transition:transform .6s cubic-bezier(.22,1,.36,1),box-shadow .6s ease,border-color .6s ease" style-hover="transform:translateY(-7px);box-shadow:0 44px 66px -44px rgba(185,160,120,.55);border-color:rgba(185,160,120,.5)">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-          <span style="font-family:'Playfair Display',serif;font-size:22px;color:#B9A078">03</span>
-          <span style="flex:1;height:1px;background:#E9E7E2"></span>
+          <span style="font-family:'Playfair Display',serif;font-size:26px;color:#B9A078">03</span>
+          <span style="flex:1;height:1px;background:linear-gradient(90deg,#B9A078,rgba(185,160,120,0))"></span>
         </div>
         <h2 style="margin:0 0 14px;font-family:'Playfair Display',serif;font-weight:400;font-size:27px;line-height:1.1">Dónde estamos</h2>
         <p style="margin:0;font-size:14px;line-height:1.85;color:#4A4A4A;font-weight:300">Atendemos desde Asunción y enviamos a todo Paraguay. Coordinamos entregas en Gran Asunción y despachos al interior por encomienda.</p>
@@ -722,15 +729,17 @@
 
   <!-- ══════════ CONTACTO ══════════ -->
   <sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
-  <main id="contacto-page" style="position:relative;overflow:hidden;animation:vFadeIn .6s cubic-bezier(.22,1,.36,1) both">
-    <img src="uploads/3.png" aria-hidden="true" alt="" style="position:absolute;top:36%;left:clamp(-260px,-12vw,-90px);transform:translateY(-50%);width:min(90vw,860px);height:auto;opacity:.08;pointer-events:none;z-index:0">
+  <main id="contacto-page" style="position:relative;overflow:hidden;background:linear-gradient(180deg,#F5F0E7 0%,#EFE7DA 55%,#F2ECDF 100%);animation:vFadeIn .6s cubic-bezier(.22,1,.36,1) both">
+    <img src="uploads/3.png" aria-hidden="true" alt="" style="position:absolute;top:36%;left:clamp(-260px,-12vw,-90px);transform:translateY(-50%);width:min(90vw,860px);height:auto;opacity:.1;pointer-events:none;z-index:0;animation:vFloat 12s ease-in-out infinite">
+    <svg viewBox="0 0 200 200" aria-hidden="true" style="position:absolute;top:-50px;right:clamp(-90px,-6vw,-40px);width:min(46vw,400px);height:auto;color:#B9A078;opacity:.06;pointer-events:none;z-index:0;animation:vFloat 11s ease-in-out infinite reverse"><use href="#vemar-mark"></use></svg>
     <section style="position:relative;z-index:1;max-width:920px;margin:0 auto;padding:clamp(60px,8vw,128px) clamp(20px,5vw,64px) clamp(30px,4vw,48px);text-align:center">
-      <p style="margin:0 0 14px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(30px,3.4vw,48px);line-height:1;color:#B9A078">Contacto</p>
-      <h1 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(34px,4.8vw,66px);line-height:1.05;letter-spacing:-0.01em;text-wrap:pretty">Hablemos de tu próxima joya</h1>
-      <p style="margin:26px auto 0;max-width:560px;font-size:15.5px;line-height:1.85;color:#4A4A4A;font-weight:300">Escribinos por el medio que prefieras. Te respondemos y coordinamos disponibilidad, pago y envío o retiro.</p>
+      <p style="margin:0 0 14px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(30px,3.4vw,48px);line-height:1;color:#B9A078;animation:vRise .9s cubic-bezier(.22,1,.36,1) both;animation-delay:.05s">Contacto</p>
+      <h1 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(34px,4.8vw,66px);line-height:1.05;letter-spacing:-0.01em;text-wrap:pretty;animation:vRise 1s cubic-bezier(.22,1,.36,1) both;animation-delay:.16s">Hablemos de tu próxima joya</h1>
+      <span style="display:block;height:1px;background:#B9A078;margin:28px auto 0;animation:vLineGrow 1.1s cubic-bezier(.22,1,.36,1) both;animation-delay:.42s"></span>
+      <p style="margin:28px auto 0;max-width:560px;font-size:15.5px;line-height:1.85;color:#4A4A4A;font-weight:300;animation:vRise 1s cubic-bezier(.22,1,.36,1) both;animation-delay:.52s">Escribinos por el medio que prefieras. Te respondemos y coordinamos disponibilidad, pago y envío o retiro.</p>
     </section>
 
-    <section style="position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:clamp(10px,2vw,24px) clamp(20px,5vw,64px) clamp(30px,4vw,60px);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(18px,2vw,28px)">
+    <section data-reveal style="position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:clamp(10px,2vw,24px) clamp(20px,5vw,64px) clamp(30px,4vw,60px);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(18px,2vw,28px)">
 
       <a href="https://wa.me/595982602731?text=Hola%20Vemar%20Importados%2C%20quisiera%20hacer%20una%20consulta." target="_blank" rel="noopener" style="display:flex;flex-direction:column;gap:16px;padding:clamp(30px,3vw,42px);border:1px solid #E9E7E2;background:#FFFFFF;text-decoration:none;transition:border-color .45s ease,transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s ease" style-hover="border-color:#B9A078;transform:translateY(-4px);box-shadow:0 24px 40px -30px rgba(23,23,23,.28)">
         <span style="width:52px;height:52px;border-radius:50%;background:#F5F1E8;color:#171717;display:flex;align-items:center;justify-content:center">
@@ -760,7 +769,7 @@
       </a>
     </section>
 
-    <section style="position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 clamp(20px,5vw,64px) clamp(64px,8vw,120px)">
+    <section data-reveal style="position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 clamp(20px,5vw,64px) clamp(64px,8vw,120px)">
       <div style="border-top:1px solid #E9E7E2;padding-top:clamp(28px,3vw,44px);display:flex;flex-wrap:wrap;gap:14px 48px;color:#4A4A4A;font-size:13.5px;font-weight:300">
         <span style="display:inline-flex;align-items:center;gap:9px"><span style="width:24px;height:1px;background:#B9A078;display:block"></span>Asunción · Paraguay</span>
         <span style="display:inline-flex;align-items:center;gap:9px"><span style="width:24px;height:1px;background:#B9A078;display:block"></span>Lun a Sáb · 9:00 a 19:00</span>
