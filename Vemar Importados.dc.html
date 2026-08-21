@@ -1852,10 +1852,10 @@ class Component extends DCLogic {
       scrollExpandRef: (el) => { if (el && !el._seBound) { el._seBound = true; this.setupScrollExpand(el); } },
       wavesRef: (el) => this.mountWaves(el),
       wavesCatalogRef: (el) => this.mountWaves(el, {
-        horizonColor: '#d3ccac', waveColor: '#f7f7f3', crestColor: '#FFFFFF',
-        speed: 0.16, amplitude: 2.0, waveScale: 0.6, waveRatio: 0.9, swell: 26, turbulence: 14,
-        tilt: 1.11, zoom: 1.0, height: 5.5, fogDepth: 18, detail: 'medium', brightness: 1.06, opacity: 0.5,
-        grain: true, grainIntensity: 0.04, mouseInteraction: true, parallaxStrength: 0.4
+        horizonColor: '#a89a58', waveColor: '#f2f2ec', crestColor: '#FFFFFF',
+        speed: 0.16, amplitude: 2.2, waveScale: 0.6, waveRatio: 0.9, swell: 30, turbulence: 16,
+        tilt: 1.11, zoom: 1.0, height: 5.5, fogDepth: 16, detail: 'medium', brightness: 1.02, opacity: 0.85,
+        grain: true, grainIntensity: 0.045, mouseInteraction: true, parallaxStrength: 0.4
       }),
       arrowPrevRef: (el) => { if (el && el !== this._arrowPrev) { this._arrowPrev = el; el.addEventListener('click', (e) => { e.preventDefault(); this.selStep(-1); }); this.updateArrows(); } },
       arrowNextRef: (el) => { if (el && el !== this._arrowNext) { this._arrowNext = el; el.addEventListener('click', (e) => { e.preventDefault(); this.selStep(1); }); this.updateArrows(); } },
