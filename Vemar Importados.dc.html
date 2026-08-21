@@ -386,22 +386,14 @@
     </section>
 
 
-    <section id="nosotros-breve" ref="{{ scrollExpandRef }}" class="se" style="background:#141414">
-      <div class="se__track">
-        <div class="se__stage">
-          <div class="se__frame">
-            <img class="se__media" src="uploads/3.png" alt="Sobre Vemar Importados" draggable="false">
-            <div class="se__scrim"></div>
-            <div class="se__overlay">
-              <div style="background:rgba(16,16,16,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);padding:clamp(34px,4.5vw,66px) clamp(30px,5vw,74px);max-width:780px;display:flex;flex-direction:column;align-items:center;text-align:center">
-                <p style="margin:0 0 14px;color:#EFE1C4;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(38px,4.6vw,64px);line-height:1;letter-spacing:0.01em">Sobre Vemar</p>
-                <p style="margin:0;max-width:600px;font-size:clamp(14px,1.5vw,19px);line-height:1.7;color:#FFFFFF;font-weight:400">En Vemar Importados seleccionamos joyas que combinan elegancia, versatilidad y personalidad. Cada pieza es elegida para convertirse en parte de tus momentos y acompañarte mucho más allá de una ocasión.</p>
-                <a href="#nosotros" onClick="{{ goAbout }}" style="margin-top:34px;display:inline-block;padding:16px 36px;background:#FFFFFF;color:#171717;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;transition:background .45s ease,color .45s ease" style-hover="background:#B9A078;color:#FFFFFF">Conocé Vemar</a>
-              </div>
-            </div>
-          </div>
-          <div class="se__title">El detalle transforma lo cotidiano</div>
-          <div class="se__hint">Desplazá para descubrir</div>
+    <section id="nosotros-breve" style="position:relative;overflow:hidden;background:#141414">
+      <img src="uploads/3.png" alt="Sobre Vemar Importados" draggable="false" style="width:100%;height:min(78vh,720px);object-fit:cover;display:block">
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,.26)"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:clamp(24px,6vw,80px)">
+        <div style="background:rgba(16,16,16,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);padding:clamp(34px,4.5vw,66px) clamp(30px,5vw,74px);max-width:780px;display:flex;flex-direction:column;align-items:center;text-align:center">
+          <p style="margin:0 0 14px;color:#EFE1C4;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(38px,4.6vw,64px);line-height:1;letter-spacing:0.01em">Sobre Vemar</p>
+          <p style="margin:0;max-width:600px;font-size:clamp(14px,1.5vw,19px);line-height:1.7;color:#FFFFFF;font-weight:400">En Vemar Importados seleccionamos joyas que combinan elegancia, versatilidad y personalidad. Cada pieza es elegida para convertirse en parte de tus momentos y acompañarte mucho más allá de una ocasión.</p>
+          <a href="#nosotros" onClick="{{ goAbout }}" style="margin-top:34px;display:inline-block;padding:16px 36px;background:#FFFFFF;color:#171717;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;transition:background .45s ease,color .45s ease" style-hover="background:#B9A078;color:#FFFFFF">Conocé Vemar</a>
         </div>
       </div>
     </section>
