@@ -148,26 +148,26 @@
     </div>
 
     <sc-if value="{{ megaOpen }}" hint-placeholder-val="{{ false }}">
-      <div data-megapanel onMouseEnter="{{ openMega }}" onMouseLeave="{{ closeMega }}" style="position:absolute;left:0;right:0;top:100%;background:#FFFFFF;border-bottom:1px solid #E9E7E2;box-shadow:0 24px 40px -30px rgba(23,23,23,.18);animation:vDropDown .5s cubic-bezier(.22,1,.36,1) both">
-        <div style="max-width:1440px;margin:0 auto;padding:44px clamp(18px,4vw,52px) 52px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:44px">
-          <div>
-            <p style="margin:0 0 20px;font-size:9.5px;letter-spacing:0.28em;text-transform:uppercase;color:#B9A078">Categorías</p>
-            <div style="display:grid;gap:13px">
+      <div data-megapanel onMouseEnter="{{ openMega }}" onMouseLeave="{{ closeMega }}" style="position:absolute;left:0;right:0;top:100%;background:#FBFAF7;border-top:1px solid #E9E7E2;border-bottom:1px solid #E9E7E2;box-shadow:0 28px 44px -30px rgba(23,23,23,.28);animation:vDropDown .5s cubic-bezier(.22,1,.36,1) both">
+        <div style="max-width:1440px;margin:0 auto;padding:clamp(26px,3vw,38px) clamp(18px,4vw,52px);display:flex;flex-wrap:wrap;align-items:stretch;gap:clamp(26px,3.4vw,54px)">
+          <div style="flex:0 0 auto;min-width:148px">
+            <p style="margin:0 0 16px;font-size:9.5px;letter-spacing:0.28em;text-transform:uppercase;color:#B9A078">Categorías</p>
+            <div style="display:grid;gap:9px">
               <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="5">
-                <a href="#joyeria" onClick="{{ cat.go }}" onMouseEnter="{{ cat.enterImg }}" style="font-family:'Playfair Display',serif;font-size:19px;font-weight:400;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">{{ cat.name }}</a>
+                <a href="#joyeria" onClick="{{ cat.go }}" onMouseEnter="{{ cat.enterImg }}" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:400;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">{{ cat.name }}</a>
               </sc-for>
             </div>
           </div>
-          <div>
-            <p style="margin:0 0 20px;font-size:9.5px;letter-spacing:0.28em;text-transform:uppercase;color:#B9A078">Líneas</p>
-            <div style="display:grid;gap:13px">
-              <a href="#colecciones" onClick="{{ goEsencial }}" style="font-family:'Playfair Display',serif;font-size:19px;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">Vemar Esencial</a>
-              <a href="#colecciones" onClick="{{ goSignature }}" style="font-family:'Playfair Display',serif;font-size:19px;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">Vemar Signature</a>
-              <a href="#joyeria" onClick="{{ goNuevos }}" style="font-family:'Playfair Display',serif;font-size:19px;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">Recién llegados</a>
+          <div style="flex:0 0 auto;min-width:148px;border-left:1px solid #ECE6DA;padding-left:clamp(24px,2.6vw,42px)">
+            <p style="margin:0 0 16px;font-size:9.5px;letter-spacing:0.28em;text-transform:uppercase;color:#B9A078">Líneas</p>
+            <div style="display:grid;gap:9px">
+              <a href="#colecciones" onClick="{{ goEsencial }}" style="font-family:'Playfair Display',serif;font-size:17px;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">Vemar Esencial</a>
+              <a href="#colecciones" onClick="{{ goSignature }}" style="font-family:'Playfair Display',serif;font-size:17px;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">Vemar Signature</a>
+              <a href="#joyeria" onClick="{{ goNuevos }}" style="font-family:'Playfair Display',serif;font-size:17px;color:#171717;transition:color .35s ease,padding-left .35s ease" style-hover="color:#B9A078;padding-left:6px">Recién llegados</a>
             </div>
           </div>
-          <a href="#joyeria" onClick="{{ goCatalog }}" style="display:block;position:relative;overflow:hidden;background:#F8F7F4">
-            <img ref="{{ megaImgRef }}" src="uploads/anillos.png" alt="Categorías Vemar" style="width:100%;height:200px;object-fit:cover;object-position:center 45%;display:block;transition:opacity .4s ease,transform 1.2s cubic-bezier(.22,1,.36,1)" style-hover="transform:scale(1.06)">
+          <a href="#joyeria" onClick="{{ goCatalog }}" style="flex:1 1 300px;max-width:540px;min-width:220px;margin-left:auto;display:block;position:relative;overflow:hidden;background:#F1EDE5">
+            <img ref="{{ megaImgRef }}" src="uploads/anillos.png" alt="Categorías Vemar" style="width:100%;height:100%;min-height:172px;object-fit:cover;object-position:center 45%;display:block;transition:opacity .4s ease,transform 1.2s cubic-bezier(.22,1,.36,1)" style-hover="transform:scale(1.06)">
             <span style="position:absolute;left:18px;bottom:16px;color:#FFFFFF;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.6)">Ver todo el catálogo</span>
           </a>
         </div>
