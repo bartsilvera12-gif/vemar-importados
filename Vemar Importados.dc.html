@@ -76,6 +76,10 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   }
+  /* Celular: los filtros del catálogo, al abrirse, ocupan todo el ancho (no una columna angosta). */
+  @media (max-width: 720px) {
+    [data-filter-aside] { max-width: none !important; width: 100%; flex-basis: 100%; }
+  }
 </style>
 </helmet>
 
@@ -457,7 +461,7 @@
 
       <div style="display:flex;flex-wrap:wrap;gap:clamp(24px,3vw,52px);align-items:flex-start">
         <sc-if value="{{ filtersOpen }}" hint-placeholder-val="{{ true }}">
-          <aside style="flex:1 1 210px;max-width:260px;min-width:200px;display:flex;flex-direction:column;gap:34px;animation:vFadeIn .5s ease both">
+          <aside data-filter-aside style="flex:1 1 210px;max-width:260px;min-width:200px;display:flex;flex-direction:column;gap:34px;animation:vFadeIn .5s ease both">
             <div>
               <p style="margin:0 0 16px;font-size:9.5px;letter-spacing:0.26em;text-transform:uppercase;color:#B9A078">Categoría</p>
               <div style="display:flex;flex-direction:column;gap:11px">
@@ -1057,6 +1061,8 @@ class Component extends DCLogic {
   componentDidMount() {
     this.sync = () => { this.setState({ isMobile: window.innerWidth < 900 }); setTimeout(() => { this.measureTrack(); this.updateTrack(); }, 60); };
     this.sync();
+    // En celular los filtros del catálogo arrancan colapsados (si no, tapan los productos).
+    if (window.innerWidth < 900) this.setState({ filtersOpen: false });
     window.addEventListener('resize', this.sync);
     this.bindReveal();
     this.revealSweep = setTimeout(() => this.revealAll(), 2500);
