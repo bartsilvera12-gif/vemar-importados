@@ -37,6 +37,19 @@
   .chk input{width:auto}
   .chk label{margin:0;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)}
 
+  /* Desplegable propio */
+  .sel{position:relative}
+  .sel-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer;text-align:left;font-size:14px;transition:border-color .2s}
+  .sel-btn:hover{border-color:var(--gold)}
+  .sel.open .sel-btn{border-color:var(--gold)}
+  .sel-btn .chev{color:var(--muted);font-size:11px;transition:transform .2s}
+  .sel.open .sel-btn .chev{transform:rotate(180deg)}
+  .sel-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:6px;z-index:6;max-height:240px;overflow:auto;display:none}
+  .sel.open .sel-menu{display:block}
+  .sel-opt{padding:9px 12px;border-radius:6px;cursor:pointer;font-size:14px;transition:background .12s,color .12s}
+  .sel-opt:hover{background:#f0ece3}
+  .sel-opt.on{background:var(--gold);color:#fff}
+
   /* Login */
   #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   #login .box{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:44px 38px;max-width:380px;width:100%}
@@ -172,6 +185,34 @@ function attachMiles(input){
 function milesVal(input){ return parseInt((input.value||'').replace(/\D/g,'')||'0',10) }
 function moneyInput(attrs){ return attachMiles(el('input',Object.assign({type:'text',inputmode:'numeric'},attrs))) }
 function moneyField(id,label,val){ return el('div',{},el('label',{},label), moneyInput({id,value:fmtMiles(val),placeholder:'0'})) }
+
+// ── Desplegable propio (reemplaza el <select> nativo del SO) ─────────────────
+// Devuelve un contenedor con un <input type=hidden id=...> para que $('#id').value siga funcionando.
+function dropdown(id, options, value){
+  const cur = options.find(o=>o.value===value) || options[0] || {value:'',label:'—'}
+  const hidden = el('input',{type:'hidden', id, value:cur.value})
+  const label = el('span',{}, cur.label)
+  const menu = el('div',{class:'sel-menu'})
+  const btn = el('button',{type:'button', class:'sel-btn'}, label, el('span',{class:'chev'},'▾'))
+  const wrap = el('div',{class:'sel'}, hidden, btn, menu)
+  btn.addEventListener('click', e=>{
+    e.stopPropagation()
+    document.querySelectorAll('.sel.open').forEach(s=>{ if(s!==wrap) s.classList.remove('open') })
+    wrap.classList.toggle('open')
+  })
+  options.forEach(o=>{
+    const opt = el('div',{class:'sel-opt'+(o.value===cur.value?' on':'')}, o.label)
+    opt.addEventListener('click', ()=>{
+      hidden.value=o.value; label.textContent=o.label
+      menu.querySelectorAll('.sel-opt').forEach(x=>x.classList.toggle('on', x===opt))
+      wrap.classList.remove('open')
+    })
+    menu.append(opt)
+  })
+  return wrap
+}
+// Cierra cualquier desplegable abierto al hacer clic afuera.
+document.addEventListener('click', ()=>document.querySelectorAll('.sel.open').forEach(s=>s.classList.remove('open')))
 
 // ── Diálogo de confirmación integrado (reemplaza el confirm() del navegador) ──
 function confirmDialog(title,msg){
@@ -322,7 +363,6 @@ function starBtn(p){
 
 function productForm(p){
   const isNew=!p; p=p||{ variants:['Única'], stock:true, cat:(CATS_CACHE[0]?.key||'') }
-  const catOpts=CATS_CACHE.map(c=>el('option',{value:c.key, selected:c.key===p.cat?'':null},c.name))
 
   // ── Editor de galería (varias imágenes) ──────────────────────────────────
   // gallery = URLs ya guardadas (strings) · newFiles = archivos nuevos a subir.
@@ -366,7 +406,7 @@ function productForm(p){
           ),
       f('f_name','Nombre',p.name,'text','Nombre del producto'),
       el('div',{class:'row'},
-        el('div',{},el('label',{},'Categoría'), el('select',{id:'f_cat'},catOpts)),
+        el('div',{},el('label',{},'Categoría'), dropdown('f_cat', CATS_CACHE.map(c=>({value:c.key,label:c.name})), p.cat)),
         f('f_line','Línea',p.line,'text','Vemar Signature')
       ),
       el('div',{class:'row'},
