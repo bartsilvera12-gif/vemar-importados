@@ -68,7 +68,11 @@
   .badge.new{background:#efe7d8;color:var(--gold-dk)}
   .badge.off{background:#f3dede;color:var(--danger)}
   .badge.cur{background:#e2ecdf;color:var(--ok)}
-  .item .acts{display:flex;gap:8px;flex:none}
+  .item .acts{display:flex;gap:8px;flex:none;align-items:center}
+  .star{background:transparent;border:none;font-size:22px;line-height:1;padding:2px 4px;color:#c9c2b4;transition:transform .15s,color .2s}
+  .star:hover{transform:scale(1.18);color:var(--gold)}
+  .star.on{color:var(--gold)}
+  .star:disabled{opacity:.5;cursor:default}
 
   /* Form panel (modal) */
   .overlay{position:fixed;inset:0;background:rgba(20,20,20,.45);backdrop-filter:blur(2px);z-index:40;display:none;align-items:flex-start;justify-content:center;padding:28px 16px;overflow:auto}
@@ -200,7 +204,20 @@ async function uploadImage(file, folder){
 }
 
 // ═══════════════ PRODUCTOS ═══════════════
-let CATS_CACHE=[]
+let CATS_CACHE=[], PRODUCTS_CACHE=[]
+
+// Código de 3 letras por categoría para el SKU (fallback: primeras 3 letras)
+const CAT_CODE = { cadenas:'CAD', pulseras:'PUL', anillos:'ANI', aros:'ARO' }
+function catCode(cat){ return (CAT_CODE[cat] || (cat||'GEN').replace(/[^a-z]/gi,'').slice(0,3).toUpperCase() || 'GEN') }
+// Genera el próximo SKU secuencial para la categoría: VM-CAD-052
+function genSku(cat){
+  const code = catCode(cat)
+  const re = new RegExp('^VM-'+code+'-(\\d+)$','i')
+  let max = 0
+  PRODUCTS_CACHE.forEach(p=>{ const m=(p.sku||'').match(re); if(m) max=Math.max(max, parseInt(m[1],10)) })
+  return 'VM-'+code+'-'+String(max+1).padStart(3,'0')
+}
+
 async function renderProductos(){
   const view=$('#view'); view.innerHTML=''
   view.append(el('div',{class:'panel-head'},
@@ -214,6 +231,7 @@ async function renderProductos(){
     sb.from('productos').select('*').order('orden')
   ])
   CATS_CACHE = cats||[]
+  PRODUCTS_CACHE = data||[]
   list.innerHTML=''
   if(error){ list.append(el('div',{class:'empty'},'Error: '+error.message)); return }
   if(!data.length){ list.append(el('div',{class:'empty'},'Sin productos. Creá el primero.')); return }
@@ -229,11 +247,37 @@ async function renderProductos(){
       ),
       el('div',{class:'price'}, gs(p.price)),
       el('div',{class:'acts'},
+        starBtn(p),
         el('button',{class:'btn ghost sm', onclick:()=>productForm(p)},'Editar'),
         el('button',{class:'btn danger sm', onclick:()=>del('productos','id',p.id,p.name)},'Borrar')
       )
     ))
   })
+}
+
+// Botón estrella: alterna "Selección Vemar" (curated) al toque, sin abrir el form.
+function starBtn(p){
+  const b=el('button',{class:'star'+(p.curated?' on':''), title:p.curated?'Quitar de Selección Vemar':'Agregar a Selección Vemar'}, p.curated?'★':'☆')
+  b.addEventListener('click', async ()=>{
+    const next=!p.curated
+    b.disabled=true
+    const { error } = await sb.from('productos').update({ curated: next }).eq('id', p.id)
+    b.disabled=false
+    if(error){ toast('Error: '+error.message, true); return }
+    p.curated=next
+    b.textContent = next?'★':'☆'
+    b.classList.toggle('on', next)
+    b.title = next?'Quitar de Selección Vemar':'Agregar a Selección Vemar'
+    // Refleja el badge "Home" en el nombre
+    const nameEl = b.closest('.item')?.querySelector('.meta .n')
+    if(nameEl){
+      const has = nameEl.querySelector('.badge.cur')
+      if(next && !has){ nameEl.insertAdjacentHTML('beforeend','<span class="badge cur">Home</span>') }
+      else if(!next && has){ has.remove() }
+    }
+    toast(next?'Agregado a Selección Vemar ★':'Quitado de Selección Vemar')
+  })
+  return b
 }
 
 function productForm(p){
@@ -251,10 +295,12 @@ function productForm(p){
   const form=el('div',{class:'form'},
     el('h3',{}, isNew?'Nuevo producto':'Editar producto'),
     el('div',{class:'grid'},
-      el('div',{class:'row'},
-        el('div',{},el('label',{},'ID (código interno)'), el('input',{id:'f_id',value:p.id||'', placeholder:'ej. vs-09', disabled:isNew?null:''})),
-        f('f_sku','SKU',p.sku,'text','VM-XXX-000')
-      ),
+      isNew
+        ? el('div',{class:'hint',style:'margin:0'},'El ID y el SKU se generan automáticamente al guardar, según la categoría.')
+        : el('div',{class:'row'},
+            el('div',{},el('label',{},'ID (código interno)'), el('input',{value:p.id||'', disabled:''})),
+            el('div',{},el('label',{},'SKU (automático)'), el('input',{value:p.sku||'', disabled:''}))
+          ),
       f('f_name','Nombre',p.name,'text','Nombre del producto'),
       el('div',{class:'row'},
         el('div',{},el('label',{},'Categoría'), el('select',{id:'f_cat'},catOpts)),
@@ -298,17 +344,19 @@ function productForm(p){
   openForm(form)
 
   async function save(){
-    const id=$('#f_id',form).value.trim()
     const name=$('#f_name',form).value.trim()
-    if(!id){ toast('El ID es obligatorio.',true); return }
     if(!name){ toast('El nombre es obligatorio.',true); return }
+    const cat=$('#f_cat',form).value
+    // ID y SKU: automáticos en creación; se conservan en edición.
+    const sku = isNew ? genSku(cat) : (p.sku||'')
+    const id  = isNew ? sku.toLowerCase() : p.id
     const btn=$('#saveBtn',form); btn.disabled=true; btn.innerHTML='<span class="spin"></span>'
     try{
       const up=await uploadImage(fileInput.files[0],'productos')
       if(up) uploadedUrl=up
       const row={
-        id, sku:$('#f_sku',form).value.trim(), name, line:$('#f_line',form).value.trim(),
-        cat:$('#f_cat',form).value, price:parseInt($('#f_price',form).value||'0',10),
+        id, sku, name, line:$('#f_line',form).value.trim(),
+        cat, price:parseInt($('#f_price',form).value||'0',10),
         img_url:uploadedUrl, material:$('#f_material',form).value.trim(), color:$('#f_color',form).value.trim(),
         medidas:$('#f_medidas',form).value.trim(),
         variants:$('#f_variants',form).value.split(',').map(s=>s.trim()).filter(Boolean),
