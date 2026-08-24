@@ -82,6 +82,13 @@
   .no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
   /* Selección Vemar: evita que el arrastre nativo de enlaces/imágenes robe el gesto de arrastre. */
   #seleccion a, #seleccion img { -webkit-user-drag: none; user-select: none; }
+  /* Hero: en celular el video vertical llena bien (cover). En desktop se muestra completo
+     (contain, menos zoom) con una copia borrosa de fondo que rellena los costados. */
+  .hero-vid-blur { display: none; }
+  @media (min-width: 900px) {
+    .hero-vid-blur { display: block; }
+    .hero-vid-main { object-fit: contain !important; object-position: center !important; }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   }
@@ -182,7 +189,10 @@
   <main id="inicio">
 
     <section style="position:relative;overflow:hidden;min-height:100vh;height:100dvh;margin-top:calc(-1 * clamp(70px,8vw,92px));display:flex;align-items:center;background:#141414">
-      <video ref="{{ bgVideoRef }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" preload="auto" poster="uploads/hero2-poster.jpg" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%">
+      <video class="hero-vid-blur" ref="{{ bgVideoBlurRef }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" preload="auto" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%;filter:blur(30px) brightness(.5);transform:scale(1.14)">
+        <source src="uploads/hero2-web.mp4" type="video/mp4">
+      </video>
+      <video class="hero-vid-main" ref="{{ bgVideoRef }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" preload="auto" poster="uploads/hero2-poster.jpg" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%">
         <source src="uploads/hero2-web.mp4" type="video/mp4">
       </video>
       <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,14,14,.8) 0%,rgba(14,14,14,.55) 40%,rgba(14,14,14,.18) 72%,rgba(14,14,14,.05) 100%)"></div>
@@ -1392,6 +1402,16 @@ class Component extends DCLogic {
     } catch (err) { play(); }
     setTimeout(() => { if (!done) { play(); if (io) io.disconnect(); } }, 4000);
   }
+  _playVid(el) {
+    if (!el || el._playBound) return;
+    el._playBound = true;
+    el.muted = true; el.defaultMuted = true; el.loop = true; el.playsInline = true; el.setAttribute('muted', '');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.removeAttribute('autoplay'); el.pause(); return; }
+    const play = () => { const p = el.play(); if (p && p.catch) p.catch(() => {}); };
+    play();
+    el.addEventListener('loadeddata', play, { once: true });
+    el.addEventListener('canplay', play, { once: true });
+  }
   mountWaves(el, opts) {
     // Ignorar llamadas con null: el framework re-ejecuta los refs en cada render
     // (sobre todo el catálogo, que re-renderiza al pasar el mouse por los productos).
@@ -1871,16 +1891,8 @@ class Component extends DCLogic {
         });
       },
       // Video de fondo del hero: fuerza muted/loop y reproduce (autoplay requiere muted).
-      bgVideoRef: (el) => {
-        if (!el || el === this.bgVideoEl) return;
-        this.bgVideoEl = el;
-        el.muted = true; el.defaultMuted = true; el.loop = true; el.playsInline = true; el.setAttribute('muted', '');
-        const play = () => { const p = el.play(); if (p && p.catch) p.catch(() => {}); };
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.removeAttribute('autoplay'); el.pause(); return; }
-        play();
-        el.addEventListener('loadeddata', play, { once: true });
-        el.addEventListener('canplay', play, { once: true });
-      },
+      bgVideoRef: (el) => this._playVid(el),
+      bgVideoBlurRef: (el) => this._playVid(el),
 
       isMobile: st.isMobile, isDesktop: !st.isMobile,
       isHome: st.route === 'home', isCatalog: st.route === 'catalogo', isProduct: st.route === 'producto', isAbout: st.route === 'nosotros', isContact: st.route === 'contacto', isPrivacy: st.route === 'privacidad',
