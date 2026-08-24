@@ -309,6 +309,15 @@ function genConjId(name){
   let n=2; while(taken.has(base+'-'+n)) n++
   return base+'-'+n
 }
+// Key automático de categoría a partir del nombre (slug único).
+function genCatKey(name){
+  const base = slugify(name) || 'cat'
+  const taken = new Set(CATS_CACHE.map(c=>c.key))
+  if(!taken.has(base)) return base
+  let n=2; while(taken.has(base+'-'+n)) n++
+  return base+'-'+n
+}
+function nextOrden(cache){ return Math.max(0, ...cache.map(x=>Number(x.orden)||0)) + 1 }
 
 async function renderProductos(){
   const view=$('#view'); view.innerHTML=''
@@ -609,6 +618,7 @@ async function renderCategorias(){
   const list=el('div',{class:'list'}); view.append(list)
   const { data, error } = await sb.from('categorias').select('*').order('orden')
   if(error){ list.append(el('div',{class:'empty'},'Error: '+error.message)); return }
+  CATS_CACHE = data||[]
   if(!data.length){ list.append(el('div',{class:'empty'},'Sin categorías.')); return }
   data.forEach(c=>{
     list.append(el('div',{class:'item'},
@@ -628,19 +638,12 @@ function catForm(c){
   const fileInput=el('input',{type:'file',accept:'image/*'})
   const preview=el('img',{class:'imgprev'})
   if(uploadedUrl){ preview.src=imgSrc(uploadedUrl); preview.style.display='block' }
-  const f=(id,label,val,ph='')=>el('div',{},el('label',{},label),el('input',{id,value:val??'',placeholder:ph}))
   const form=el('div',{class:'form'},
     el('h3',{}, isNew?'Nueva categoría':'Editar categoría'),
     el('div',{class:'grid'},
-      el('div',{class:'row'},
-        el('div',{},el('label',{},'Key (identificador, sin espacios)'),el('input',{id:'k_key',value:c.key||'',placeholder:'anillos',disabled:isNew?null:''})),
-        f('k_name','Nombre','','') // set below
-      ),
-      el('div',{},el('label',{},'Imagen'),fileInput,el('div',{class:'hint'},'Se sube a Storage al guardar. Vacío = conservar actual.'),preview),
-      el('div',{class:'row'},
-        f('k_pos','Posición de imagen (CSS)',c.img_pos,'center 45%'),
-        f('k_orden','Orden',c.orden??0,'')
-      )
+      isNew ? null : el('div',{class:'hint',style:'margin:0'}, 'Identificador: '+c.key),
+      el('div',{},el('label',{},'Nombre'),el('input',{id:'k_name',value:c.name||'',placeholder:'Anillos'})),
+      el('div',{},el('label',{},'Imagen'),fileInput,el('div',{class:'hint'},'Se sube a Storage al guardar. Se centra y ajusta sola. Vacío = conservar actual.'),preview)
     ),
     el('div',{class:'foot'},
       isNew?el('span',{}):el('button',{class:'btn danger',onclick:()=>del('categorias','key',c.key,c.name,true)},'Borrar'),
@@ -650,17 +653,19 @@ function catForm(c){
       )
     )
   )
-  $('#k_name',form).value=c.name||''
   fileInput.addEventListener('change',()=>{const fl=fileInput.files[0];if(fl){preview.src=URL.createObjectURL(fl);preview.style.display='block'}})
   openForm(form)
 
   async function save(){
-    const key=$('#k_key',form).value.trim(), name=$('#k_name',form).value.trim()
-    if(!key||!name){ toast('Key y nombre son obligatorios.',true); return }
+    const name=$('#k_name',form).value.trim()
+    if(!name){ toast('El nombre es obligatorio.',true); return }
+    // key, posición y orden se resuelven automáticamente (nada técnico para el cliente).
+    const key = isNew ? genCatKey(name) : c.key
     const btn=$('#saveK',form); btn.disabled=true; btn.innerHTML='<span class="spin"></span>'
     try{
       const up=await uploadImage(fileInput.files[0],'categorias'); if(up) uploadedUrl=up
-      const row={ key, name, img_url:uploadedUrl, img_pos:$('#k_pos',form).value.trim()||'center', orden:parseInt($('#k_orden',form).value||'0',10) }
+      const row={ key, name, img_url:uploadedUrl, img_pos: c.img_pos || 'center',
+        orden: isNew ? nextOrden(CATS_CACHE) : (c.orden??0) }
       const { error } = await sb.from('categorias').upsert(row); if(error) throw error
       closeForm(); toast('Categoría guardada.'); renderCategorias()
     }catch(err){ btn.disabled=false; btn.textContent='Guardar'; toast('Error: '+err.message,true) }
