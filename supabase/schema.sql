@@ -35,7 +35,8 @@ create table if not exists vemar.productos (
   line          text        default '',  -- 'Vemar Esencial' / 'Vemar Signature'
   cat           text        references vemar.categorias(key) on update cascade on delete set null,
   price         bigint      default 0,   -- guaraníes; 0 = "Consultar precio"
-  img_url       text        default '',
+  img_url       text        default '',  -- portada (= images[0])
+  images        text[]      default '{}',-- galería completa (portada primero)
   img_alt       text        default '',
   material      text        default '',
   color         text        default '',
@@ -51,6 +52,9 @@ create table if not exists vemar.productos (
   created_at    timestamptz default now(),
   updated_at    timestamptz default now()
 );
+
+-- Si la tabla ya existía sin la columna de galería, agregarla:
+alter table vemar.productos add column if not exists images text[] default '{}';
 
 drop trigger if exists trg_productos_updated on vemar.productos;
 create trigger trg_productos_updated before update on vemar.productos

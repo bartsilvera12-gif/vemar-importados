@@ -82,6 +82,11 @@ on conflict (id) do update set
   name=excluded.name, pieces=excluded.pieces, line=excluded.line, price=excluded.price,
   img_url=excluded.img_url, img_pos=excluded.img_pos, material=excluded.material, description=excluded.description, orden=excluded.orden;
 
+-- Galería: sembrar images[] con la portada para los productos existentes
+update vemar.productos
+  set images = array[img_url]
+  where (images is null or array_length(images,1) is null) and coalesce(img_url,'') <> '';
+
 -- Piezas del conjunto (se regeneran para evitar duplicados al re-correr)
 delete from vemar.conjunto_items where conjunto_id = 'conj-grummet';
 insert into vemar.conjunto_items (conjunto_id, name, price, orden) values

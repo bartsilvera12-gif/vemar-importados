@@ -1236,6 +1236,7 @@ function sbMapProduct(row) {
   return {
     id: row.id, sku: row.sku || '', name: row.name, line: row.line || '',
     cat: row.cat || '', price: Number(row.price) || 0, img: row.img_url || '', imgAlt: row.img_alt || '',
+    gallery: Array.isArray(row.images) ? row.images.filter(Boolean) : [],
     material: row.material || '', color: row.color || '', medidas: row.medidas || '',
     variants: (Array.isArray(row.variants) && row.variants.length) ? row.variants : ['Única'],
     stock: !!row.stock, isNew: !!row.is_new, tag: row.tag || '', description: row.description || ''
@@ -2033,7 +2034,11 @@ class Component extends DCLogic {
     const st = this.state;
     const p = this.find(st.productId);
     const variant = st.variant || (p.variants && p.variants[0]) || '—';
-    const galleryImgs = p.img ? [p.img, '', ''] : ['', '', ''];
+    // Galería: si el producto trae varias imágenes (Supabase), las mostramos todas;
+    // si no, caemos al look de 3 slots con la portada + placeholders editoriales.
+    const galleryImgs = (p.gallery && p.gallery.length)
+      ? p.gallery.slice(0, 6)
+      : (p.img ? [p.img, '', ''] : ['', '', '']);
     const gallerySlots = ['', 'vista alternativa\ndetalle del broche\n1600 × 2000', 'pieza en uso\nfoto editorial\n1600 × 2000'];
     const catalogList = this.filtered();
     const q = st.query.trim().toLowerCase();

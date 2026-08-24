@@ -29,6 +29,7 @@
   .btn.gold{background:var(--gold)} .btn.gold:hover{background:var(--gold-dk)}
   .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)} .btn.ghost:hover{background:#f0ece3}
   .btn.danger{background:transparent;color:var(--danger);border:1px solid #e3cbc9} .btn.danger:hover{background:var(--danger);color:#fff}
+  .btn.solid-danger{background:var(--danger);color:#fff} .btn.solid-danger:hover{background:#8f302e}
   .btn.sm{padding:6px 12px;font-size:11px}
   .row{display:flex;gap:12px;flex-wrap:wrap}
   .row>*{flex:1;min-width:140px}
@@ -82,6 +83,16 @@
   .form .grid{display:grid;gap:14px}
   .form .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
   .imgprev{width:100%;height:150px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#f2efe8;margin-top:8px;display:none}
+  .gallery-edit{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+  .gthumb{position:relative;width:88px;height:108px;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:#f2efe8}
+  .gthumb.cover{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+  .gthumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .gthumb .gbtn{position:absolute;border:none;width:22px;height:22px;border-radius:50%;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+  .gthumb .gbtn.x{top:4px;right:4px;background:rgba(20,20,20,.72);color:#fff}
+  .gthumb .gbtn.x:hover{background:var(--danger)}
+  .gthumb .gbtn.mk{bottom:4px;left:4px;background:rgba(255,255,255,.9);color:var(--gold-dk)}
+  .gthumb .gbtn.mk:hover{background:var(--gold);color:#fff}
+  .gthumb .covertag{position:absolute;bottom:0;left:0;right:0;background:var(--gold);color:#fff;font-size:9px;letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:2px 0}
   .items-edit{display:grid;gap:8px}
   .items-edit .ir{display:flex;gap:8px}
   .items-edit .ir input:first-child{flex:2}
@@ -152,6 +163,35 @@ let toastT
 function toast(msg,isErr){const t=$('#toast');t.textContent=msg;t.className='toast show'+(isErr?' err':'');clearTimeout(toastT);toastT=setTimeout(()=>t.className='toast',2600)}
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 
+// ── Precio con divisor de miles (es-PY: 100.000) ─────────────────────────────
+function fmtMiles(v){ return Number(v)>0 ? Number(v).toLocaleString('es-PY') : '' }
+function attachMiles(input){
+  const fmt=()=>{ const d=(input.value||'').replace(/\D/g,''); input.value = d ? Number(d).toLocaleString('es-PY') : '' }
+  input.addEventListener('input',fmt); fmt(); return input
+}
+function milesVal(input){ return parseInt((input.value||'').replace(/\D/g,'')||'0',10) }
+function moneyInput(attrs){ return attachMiles(el('input',Object.assign({type:'text',inputmode:'numeric'},attrs))) }
+function moneyField(id,label,val){ return el('div',{},el('label',{},label), moneyInput({id,value:fmtMiles(val),placeholder:'0'})) }
+
+// ── Diálogo de confirmación integrado (reemplaza el confirm() del navegador) ──
+function confirmDialog(title,msg){
+  return new Promise(resolve=>{
+    const box=el('div',{class:'form',style:'max-width:400px'},
+      el('h3',{},title),
+      el('p',{style:'color:var(--muted);margin:0'},msg),
+      el('div',{class:'foot',style:'justify-content:flex-end;border-top:none;padding-top:0;margin-top:22px'},
+        el('button',{class:'btn ghost',onclick:()=>done(false)},'Cancelar'),
+        el('button',{class:'btn solid-danger',onclick:()=>done(true)},'Borrar')
+      ))
+    const ov=el('div',{class:'overlay open',style:'z-index:70'},box)
+    ov.addEventListener('click',e=>{ if(e.target===ov) done(false) })
+    function done(v){ ov.remove(); document.removeEventListener('keydown',onKey); resolve(v) }
+    function onKey(e){ if(e.key==='Escape') done(false); if(e.key==='Enter') done(true) }
+    document.addEventListener('keydown',onKey)
+    document.body.append(ov)
+  })
+}
+
 // Resuelve img_url relativo (del repo) o absoluto (Storage) para preview
 function imgSrc(u){ if(!u) return ''; return /^https?:|^data:/.test(u) ? u : (location.origin+'/'+u.replace(/^\//,'')) }
 
@@ -197,7 +237,7 @@ async function uploadImage(file, folder){
   if(!file) return null
   const ext=(file.name.split('.').pop()||'jpg').toLowerCase()
   const safe=folder.replace(/[^a-z0-9/_-]/gi,'')
-  const path=`${safe}/${Date.now()}-${Math.floor(performance.now())}.${ext}`
+  const path=`${safe}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`
   const { error } = await sb.storage.from(BUCKET).upload(path, file, { upsert:true, cacheControl:'3600' })
   if(error) throw error
   return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl
@@ -282,11 +322,34 @@ function starBtn(p){
 
 function productForm(p){
   const isNew=!p; p=p||{ variants:['Única'], stock:true, cat:(CATS_CACHE[0]?.key||'') }
-  let uploadedUrl=p.img_url||''
   const catOpts=CATS_CACHE.map(c=>el('option',{value:c.key, selected:c.key===p.cat?'':null},c.name))
-  const preview=el('img',{class:'imgprev'})
-  if(uploadedUrl){ preview.src=imgSrc(uploadedUrl); preview.style.display='block' }
-  const fileInput=el('input',{type:'file', accept:'image/*'})
+
+  // ── Editor de galería (varias imágenes) ──────────────────────────────────
+  // gallery = URLs ya guardadas (strings) · newFiles = archivos nuevos a subir.
+  let gallery = (Array.isArray(p.images) && p.images.length) ? p.images.slice() : (p.img_url ? [p.img_url] : [])
+  const newFiles = []
+  const fileInput = el('input',{type:'file', accept:'image/*', multiple:''})
+  const galWrap = el('div',{class:'gallery-edit'})
+  function gthumb(src, isCover, onRemove, onCover){
+    return el('div',{class:'gthumb'+(isCover?' cover':'')},
+      el('img',{src, alt:''}),
+      isCover ? el('span',{class:'covertag'},'Portada')
+              : (onCover ? el('button',{class:'gbtn mk', title:'Hacer portada', onclick:onCover},'★') : null),
+      el('button',{class:'gbtn x', title:'Quitar', onclick:onRemove},'✕')
+    )
+  }
+  function renderGallery(){
+    galWrap.innerHTML=''
+    gallery.forEach((url,i)=> galWrap.append(
+      gthumb(imgSrc(url), i===0,
+        ()=>{ gallery.splice(i,1); renderGallery() },
+        i===0?null:()=>{ gallery.unshift(gallery.splice(i,1)[0]); renderGallery() })
+    ))
+    newFiles.forEach((fobj,i)=> galWrap.append(
+      gthumb(fobj.url, false, ()=>{ URL.revokeObjectURL(fobj.url); newFiles.splice(i,1); renderGallery() }, null)
+    ))
+    if(!gallery.length && !newFiles.length) galWrap.append(el('div',{class:'hint'},'Sin imágenes todavía. Agregá una o varias.'))
+  }
 
   const f = (id,label,val,type='text',ph='')=>el('div',{},el('label',{},label), type==='textarea'
     ? el('textarea',{id,placeholder:ph},val??'')
@@ -307,7 +370,7 @@ function productForm(p){
         f('f_line','Línea',p.line,'text','Vemar Signature')
       ),
       el('div',{class:'row'},
-        f('f_price','Precio (Gs · 0 = consultar)',p.price,'number'),
+        moneyField('f_price','Precio (Gs · 0 = consultar)',p.price),
         f('f_medidas','Medidas',p.medidas,'text','45 cm · 4 mm')
       ),
       el('div',{class:'row'},
@@ -319,10 +382,10 @@ function productForm(p){
         f('f_tag','Etiqueta',p.tag,'text','Nuevo / Destacado')
       ),
       el('div',{},
-        el('label',{},'Imagen'),
+        el('label',{},'Imágenes'),
+        galWrap,
         fileInput,
-        el('div',{class:'hint'},'Se sube a Storage al guardar. Dejá vacío para conservar la actual.'),
-        preview
+        el('div',{class:'hint'},'Podés elegir varias a la vez. La primera es la portada (★ para cambiarla). Se suben a Storage al guardar.')
       ),
       f('f_desc','Descripción',p.description,'textarea','Descripción del producto…'),
       el('div',{class:'row'},
@@ -340,7 +403,12 @@ function productForm(p){
       )
     )
   )
-  fileInput.addEventListener('change',()=>{ const fl=fileInput.files[0]; if(fl){ preview.src=URL.createObjectURL(fl); preview.style.display='block' } })
+  fileInput.addEventListener('change',()=>{
+    [...fileInput.files].forEach(fl=> newFiles.push({ file:fl, url:URL.createObjectURL(fl) }))
+    fileInput.value=''  // permite volver a elegir el mismo archivo
+    renderGallery()
+  })
+  renderGallery()
   openForm(form)
 
   async function save(){
@@ -352,12 +420,15 @@ function productForm(p){
     const id  = isNew ? sku.toLowerCase() : p.id
     const btn=$('#saveBtn',form); btn.disabled=true; btn.innerHTML='<span class="spin"></span>'
     try{
-      const up=await uploadImage(fileInput.files[0],'productos')
-      if(up) uploadedUrl=up
+      // Sube los archivos nuevos y arma la galería final (orden: guardadas + nuevas).
+      const uploaded=[]
+      for(const fobj of newFiles){ const u=await uploadImage(fobj.file,'productos'); if(u) uploaded.push(u) }
+      const images=[...gallery, ...uploaded]
+      const cover=images[0]||''
       const row={
         id, sku, name, line:$('#f_line',form).value.trim(),
-        cat, price:parseInt($('#f_price',form).value||'0',10),
-        img_url:uploadedUrl, material:$('#f_material',form).value.trim(), color:$('#f_color',form).value.trim(),
+        cat, price:milesVal($('#f_price',form)),
+        img_url:cover, images, material:$('#f_material',form).value.trim(), color:$('#f_color',form).value.trim(),
         medidas:$('#f_medidas',form).value.trim(),
         variants:$('#f_variants',form).value.split(',').map(s=>s.trim()).filter(Boolean),
         stock:$('#f_stock',form).checked, is_new:$('#f_new',form).checked, tag:$('#f_tag',form).value.trim(),
@@ -408,7 +479,7 @@ function conjForm(c){
   const addItemRow=(name='',price='')=>{
     const r=el('div',{class:'ir'},
       el('input',{type:'text',value:name,placeholder:'Pieza (ej. Cadena Grummet 4 mm)'}),
-      el('input',{type:'number',value:price,placeholder:'Precio'}),
+      moneyInput({value:fmtMiles(price),placeholder:'Precio'}),
       el('button',{class:'btn danger sm', onclick:()=>r.remove()},'✕')
     )
     itemsWrap.append(r)
@@ -429,7 +500,7 @@ function conjForm(c){
         f('c_line','Línea',c.line,'text','Vemar Signature')
       ),
       el('div',{class:'row'},
-        f('c_price','Precio del conjunto (Gs)',c.price,'number'),
+        moneyField('c_price','Precio del conjunto (Gs)',c.price),
         f('c_material','Material',c.material,'text','Oro laminado 18k')
       ),
       el('div',{},el('label',{},'Imagen'),fileInput,el('div',{class:'hint'},'Se sube a Storage al guardar. Vacío = conservar actual.'),preview),
@@ -459,14 +530,14 @@ function conjForm(c){
     try{
       const up=await uploadImage(fileInput.files[0],'conjuntos'); if(up) uploadedUrl=up
       const row={ id, name, pieces:$('#c_pieces',form).value.trim(), line:$('#c_line',form).value.trim(),
-        price:parseInt($('#c_price',form).value||'0',10), img_url:uploadedUrl, material:$('#c_material',form).value.trim(),
+        price:milesVal($('#c_price',form)), img_url:uploadedUrl, material:$('#c_material',form).value.trim(),
         description:$('#c_desc',form).value.trim(), orden:parseInt($('#c_orden',form).value||'0',10) }
       let e1=(await sb.from('conjuntos').upsert(row)).error; if(e1) throw e1
       // Regenerar piezas
       await sb.from('conjunto_items').delete().eq('conjunto_id',id)
       const items=[...itemsWrap.querySelectorAll('.ir')].map((r,idx)=>{
         const [n,pr]=r.querySelectorAll('input')
-        return { conjunto_id:id, name:n.value.trim(), price:parseInt(pr.value||'0',10), orden:idx+1 }
+        return { conjunto_id:id, name:n.value.trim(), price:milesVal(pr), orden:idx+1 }
       }).filter(i=>i.name)
       if(items.length){ const e2=(await sb.from('conjunto_items').insert(items)).error; if(e2) throw e2 }
       closeForm(); toast('Conjunto guardado.'); renderConjuntos()
@@ -544,7 +615,8 @@ function catForm(c){
 
 // ── Delete ──────────────────────────────────────────────────────────────────
 async function del(table,keyCol,val,label,fromForm){
-  if(!confirm(`¿Borrar "${label}"? Esta acción no se puede deshacer.`)) return
+  const ok = await confirmDialog('¿Borrar este ítem?', `Vas a borrar "${label}". Esta acción no se puede deshacer.`)
+  if(!ok) return
   const { error } = await sb.from(table).delete().eq(keyCol,val)
   if(error){ toast('Error: '+error.message,true); return }
   if(fromForm) closeForm()
