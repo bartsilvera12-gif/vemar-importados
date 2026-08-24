@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Vemar · Panel de administración</title>
+<link rel="icon" href="favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F6F4EF; --card:#FFFFFF; --ink:#1A1A1A; --muted:#7A756C; --line:#E7E2D8;
+    --gold:#B9A078; --gold-dk:#9C8460; --danger:#B0413E; --ok:#3F7D4E; --dark:#171717;
+    --shadow:0 1px 3px rgba(0,0,0,.06),0 8px 30px rgba(0,0,0,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5}
+  h1,h2,h3{font-family:'Playfair Display',serif;font-weight:500;margin:0}
+  a{color:var(--gold-dk)}
+  button{font-family:inherit;cursor:pointer}
+  input,select,textarea{font-family:inherit;font-size:14px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+  textarea{resize:vertical;min-height:80px}
+  label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
+  .btn{border:none;border-radius:8px;padding:10px 18px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:var(--dark);color:#fff;transition:background .25s}
+  .btn:hover{background:var(--gold-dk)}
+  .btn.gold{background:var(--gold)} .btn.gold:hover{background:var(--gold-dk)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)} .btn.ghost:hover{background:#f0ece3}
+  .btn.danger{background:transparent;color:var(--danger);border:1px solid #e3cbc9} .btn.danger:hover{background:var(--danger);color:#fff}
+  .btn.sm{padding:6px 12px;font-size:11px}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .row>*{flex:1;min-width:140px}
+  .chk{display:flex;align-items:center;gap:8px;margin-top:22px}
+  .chk input{width:auto}
+  .chk label{margin:0;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)}
+
+  /* Login */
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  #login .box{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:44px 38px;max-width:380px;width:100%}
+  #login .brand{text-align:center;margin-bottom:26px}
+  #login .brand small{display:block;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold-dk);margin-top:6px}
+  .err{color:var(--danger);font-size:13px;min-height:18px;margin-top:4px}
+
+  /* App shell */
+  #app{display:none;min-height:100vh}
+  header.top{position:sticky;top:0;z-index:20;background:rgba(246,244,239,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:14px 22px}
+  header.top .l{display:flex;align-items:baseline;gap:12px}
+  header.top small{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-dk)}
+  header.top .r{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--muted)}
+  nav.tabs{display:flex;gap:4px;padding:14px 22px 0;flex-wrap:wrap}
+  nav.tabs button{background:transparent;border:none;padding:10px 18px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid transparent}
+  nav.tabs button.active{color:var(--ink);border-bottom-color:var(--gold)}
+  main{max-width:1080px;margin:0 auto;padding:22px}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+  .panel-head h2{font-size:24px}
+
+  /* Cards / list */
+  .list{display:grid;gap:12px}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow)}
+  .item .thumb{width:56px;height:70px;border-radius:8px;object-fit:cover;background:#eee;flex:none}
+  .item .meta{flex:1;min-width:0}
+  .item .meta .n{font-family:'Playfair Display',serif;font-size:17px}
+  .item .meta .s{color:var(--muted);font-size:12px;margin-top:2px}
+  .item .price{font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap}
+  .badge{display:inline-block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-left:8px}
+  .badge.new{background:#efe7d8;color:var(--gold-dk)}
+  .badge.off{background:#f3dede;color:var(--danger)}
+  .badge.cur{background:#e2ecdf;color:var(--ok)}
+  .item .acts{display:flex;gap:8px;flex:none}
+
+  /* Form panel (modal) */
+  .overlay{position:fixed;inset:0;background:rgba(20,20,20,.45);backdrop-filter:blur(2px);z-index:40;display:none;align-items:flex-start;justify-content:center;padding:28px 16px;overflow:auto}
+  .overlay.open{display:flex}
+  .form{background:var(--card);border-radius:16px;box-shadow:var(--shadow);width:100%;max-width:640px;padding:26px 26px 30px}
+  .form h3{font-size:22px;margin-bottom:18px}
+  .form .grid{display:grid;gap:14px}
+  .form .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+  .imgprev{width:100%;height:150px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#f2efe8;margin-top:8px;display:none}
+  .items-edit{display:grid;gap:8px}
+  .items-edit .ir{display:flex;gap:8px}
+  .items-edit .ir input:first-child{flex:2}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px}
+  .empty{text-align:center;color:var(--muted);padding:50px 0}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;transition:.3s;z-index:60;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.err{background:var(--danger)}
+  .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<section id="login">
+  <form class="box" id="loginForm">
+    <div class="brand">
+      <h1>Vemar Importados</h1>
+      <small>Panel de administración</small>
+    </div>
+    <div class="grid" style="display:grid;gap:14px">
+      <div>
+        <label>Email</label>
+        <input type="email" id="email" autocomplete="username" required placeholder="admin@vemar.com" />
+      </div>
+      <div>
+        <label>Contraseña</label>
+        <input type="password" id="password" autocomplete="current-password" required />
+      </div>
+      <button class="btn gold" type="submit" id="loginBtn">Ingresar</button>
+      <div class="err" id="loginErr"></div>
+    </div>
+  </form>
+</section>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app">
+  <header class="top">
+    <div class="l"><h1 style="font-size:20px">Vemar</h1><small>Admin</small></div>
+    <div class="r"><span id="who"></span><button class="btn ghost sm" id="logout">Cerrar sesión</button></div>
+  </header>
+  <nav class="tabs">
+    <button data-tab="productos" class="active">Productos</button>
+    <button data-tab="conjuntos">Conjuntos</button>
+    <button data-tab="categorias">Categorías</button>
+  </nav>
+  <main id="view"></main>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+// ── Config ──────────────────────────────────────────────────────────────────
+const SB_URL  = 'https://api.neura.com.py'
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc0MTAxNDYxLCJleHAiOjE5MzE3ODE0NjF9.7_wAph8IolPMXtgfpezSwS5XR62IdD__qhqCywLDp3Q'
+const BUCKET  = 'vemar'
+const sb = createClient(SB_URL, SB_ANON, { db:{ schema:'vemar' }, auth:{ persistSession:true, autoRefreshToken:true } })
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+const $  = (s,el=document)=>el.querySelector(s)
+const el = (tag,attrs={},...kids)=>{const n=document.createElement(tag);for(const k in attrs){if(k==='class')n.className=attrs[k];else if(k==='html')n.innerHTML=attrs[k];else if(k.startsWith('on'))n.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)n.setAttribute(k,attrs[k]);}kids.flat().forEach(c=>n.append(c?.nodeType?c:document.createTextNode(c)));return n}
+const gs = n => Number(n||0)>0 ? (Number(n).toLocaleString('es-PY')+' Gs') : 'Consultar'
+let toastT
+function toast(msg,isErr){const t=$('#toast');t.textContent=msg;t.className='toast show'+(isErr?' err':'');clearTimeout(toastT);toastT=setTimeout(()=>t.className='toast',2600)}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+// Resuelve img_url relativo (del repo) o absoluto (Storage) para preview
+function imgSrc(u){ if(!u) return ''; return /^https?:|^data:/.test(u) ? u : (location.origin+'/'+u.replace(/^\//,'')) }
+
+// ── Auth ────────────────────────────────────────────────────────────────────
+$('#loginForm').addEventListener('submit', async e=>{
+  e.preventDefault()
+  const btn=$('#loginBtn'), err=$('#loginErr'); err.textContent=''
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>'
+  const { error } = await sb.auth.signInWithPassword({ email:$('#email').value.trim(), password:$('#password').value })
+  btn.disabled=false; btn.textContent='Ingresar'
+  if(error){ err.textContent = error.message==='Invalid login credentials' ? 'Email o contraseña incorrectos.' : error.message; return }
+  boot()
+})
+$('#logout').addEventListener('click', async ()=>{ await sb.auth.signOut(); location.reload() })
+
+async function gate(){
+  const { data:{ session } } = await sb.auth.getSession()
+  if(session) boot()
+}
+function boot(){
+  $('#login').style.display='none'
+  $('#app').style.display='block'
+  sb.auth.getUser().then(({data})=>{ $('#who').textContent = data?.user?.email || '' })
+  showTab('productos')
+}
+
+// ── Tabs ────────────────────────────────────────────────────────────────────
+let current='productos'
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.toggle('active',x===b))
+  showTab(b.dataset.tab)
+}))
+function showTab(t){ current=t; ({productos:renderProductos, conjuntos:renderConjuntos, categorias:renderCategorias}[t])() }
+
+// ── Overlay / form ──────────────────────────────────────────────────────────
+const overlay=$('#overlay')
+function openForm(node){ overlay.innerHTML=''; overlay.append(node); overlay.classList.add('open') }
+function closeForm(){ overlay.classList.remove('open'); overlay.innerHTML='' }
+overlay.addEventListener('click',e=>{ if(e.target===overlay) closeForm() })
+
+// Sube archivo al bucket y devuelve URL pública. Devuelve null si no hay archivo.
+async function uploadImage(file, folder){
+  if(!file) return null
+  const ext=(file.name.split('.').pop()||'jpg').toLowerCase()
+  const safe=folder.replace(/[^a-z0-9/_-]/gi,'')
+  const path=`${safe}/${Date.now()}-${Math.floor(performance.now())}.${ext}`
+  const { error } = await sb.storage.from(BUCKET).upload(path, file, { upsert:true, cacheControl:'3600' })
+  if(error) throw error
+  return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl
+}
+
+// ═══════════════ PRODUCTOS ═══════════════
+let CATS_CACHE=[]
+async function renderProductos(){
+  const view=$('#view'); view.innerHTML=''
+  view.append(el('div',{class:'panel-head'},
+    el('h2',{},'Productos'),
+    el('button',{class:'btn gold', onclick:()=>productForm(null)},'＋ Nuevo producto')
+  ))
+  const list=el('div',{class:'list'}); view.append(list)
+  list.append(el('div',{class:'empty'},'Cargando…'))
+  const [{data:cats},{data,error}] = await Promise.all([
+    sb.from('categorias').select('*').order('orden'),
+    sb.from('productos').select('*').order('orden')
+  ])
+  CATS_CACHE = cats||[]
+  list.innerHTML=''
+  if(error){ list.append(el('div',{class:'empty'},'Error: '+error.message)); return }
+  if(!data.length){ list.append(el('div',{class:'empty'},'Sin productos. Creá el primero.')); return }
+  data.forEach(p=>{
+    list.append(el('div',{class:'item'},
+      p.img_url ? el('img',{class:'thumb', src:imgSrc(p.img_url), alt:'', onerror:function(){this.style.visibility='hidden'}}) : el('div',{class:'thumb'}),
+      el('div',{class:'meta'},
+        el('div',{class:'n', html: esc(p.name)
+          + (p.is_new?'<span class="badge new">Nuevo</span>':'')
+          + (p.curated?'<span class="badge cur">Home</span>':'')
+          + (!p.stock?'<span class="badge off">A pedido</span>':'') }),
+        el('div',{class:'s'}, `${p.sku||'—'} · ${p.cat||'sin categoría'} · ${p.line||''}`)
+      ),
+      el('div',{class:'price'}, gs(p.price)),
+      el('div',{class:'acts'},
+        el('button',{class:'btn ghost sm', onclick:()=>productForm(p)},'Editar'),
+        el('button',{class:'btn danger sm', onclick:()=>del('productos','id',p.id,p.name)},'Borrar')
+      )
+    ))
+  })
+}
+
+function productForm(p){
+  const isNew=!p; p=p||{ variants:['Única'], stock:true, cat:(CATS_CACHE[0]?.key||'') }
+  let uploadedUrl=p.img_url||''
+  const catOpts=CATS_CACHE.map(c=>el('option',{value:c.key, selected:c.key===p.cat?'':null},c.name))
+  const preview=el('img',{class:'imgprev'})
+  if(uploadedUrl){ preview.src=imgSrc(uploadedUrl); preview.style.display='block' }
+  const fileInput=el('input',{type:'file', accept:'image/*'})
+
+  const f = (id,label,val,type='text',ph='')=>el('div',{},el('label',{},label), type==='textarea'
+    ? el('textarea',{id,placeholder:ph},val??'')
+    : el('input',{id,type,value:val??'',placeholder:ph}))
+
+  const form=el('div',{class:'form'},
+    el('h3',{}, isNew?'Nuevo producto':'Editar producto'),
+    el('div',{class:'grid'},
+      el('div',{class:'row'},
+        el('div',{},el('label',{},'ID (código interno)'), el('input',{id:'f_id',value:p.id||'', placeholder:'ej. vs-09', disabled:isNew?null:''})),
+        f('f_sku','SKU',p.sku,'text','VM-XXX-000')
+      ),
+      f('f_name','Nombre',p.name,'text','Nombre del producto'),
+      el('div',{class:'row'},
+        el('div',{},el('label',{},'Categoría'), el('select',{id:'f_cat'},catOpts)),
+        f('f_line','Línea',p.line,'text','Vemar Signature')
+      ),
+      el('div',{class:'row'},
+        f('f_price','Precio (Gs · 0 = consultar)',p.price,'number'),
+        f('f_medidas','Medidas',p.medidas,'text','45 cm · 4 mm')
+      ),
+      el('div',{class:'row'},
+        f('f_material','Material',p.material,'text','Oro laminado 18k'),
+        f('f_color','Color',p.color,'text','Dorado')
+      ),
+      el('div',{class:'row'},
+        f('f_variants','Variantes (separadas por coma)',(p.variants||[]).join(', '),'text','Única'),
+        f('f_tag','Etiqueta',p.tag,'text','Nuevo / Destacado')
+      ),
+      el('div',{},
+        el('label',{},'Imagen'),
+        fileInput,
+        el('div',{class:'hint'},'Se sube a Storage al guardar. Dejá vacío para conservar la actual.'),
+        preview
+      ),
+      f('f_desc','Descripción',p.description,'textarea','Descripción del producto…'),
+      el('div',{class:'row'},
+        el('div',{class:'chk'},el('input',{type:'checkbox',id:'f_stock',checked:p.stock?'':null}),el('label',{for:'f_stock'},'En stock')),
+        el('div',{class:'chk'},el('input',{type:'checkbox',id:'f_new',checked:p.is_new?'':null}),el('label',{for:'f_new'},'Nuevo')),
+        el('div',{class:'chk'},el('input',{type:'checkbox',id:'f_cur',checked:p.curated?'':null}),el('label',{for:'f_cur'},'Mostrar en Home')),
+        f('f_orden','Orden',p.orden??0,'number')
+      )
+    ),
+    el('div',{class:'foot'},
+      isNew?el('span',{}):el('button',{class:'btn danger', onclick:()=>del('productos','id',p.id,p.name,true)},'Borrar'),
+      el('div',{class:'row',style:'flex:none'},
+        el('button',{class:'btn ghost', onclick:closeForm},'Cancelar'),
+        el('button',{class:'btn gold', id:'saveBtn', onclick:save},'Guardar')
+      )
+    )
+  )
+  fileInput.addEventListener('change',()=>{ const fl=fileInput.files[0]; if(fl){ preview.src=URL.createObjectURL(fl); preview.style.display='block' } })
+  openForm(form)
+
+  async function save(){
+    const id=$('#f_id',form).value.trim()
+    const name=$('#f_name',form).value.trim()
+    if(!id){ toast('El ID es obligatorio.',true); return }
+    if(!name){ toast('El nombre es obligatorio.',true); return }
+    const btn=$('#saveBtn',form); btn.disabled=true; btn.innerHTML='<span class="spin"></span>'
+    try{
+      const up=await uploadImage(fileInput.files[0],'productos')
+      if(up) uploadedUrl=up
+      const row={
+        id, sku:$('#f_sku',form).value.trim(), name, line:$('#f_line',form).value.trim(),
+        cat:$('#f_cat',form).value, price:parseInt($('#f_price',form).value||'0',10),
+        img_url:uploadedUrl, material:$('#f_material',form).value.trim(), color:$('#f_color',form).value.trim(),
+        medidas:$('#f_medidas',form).value.trim(),
+        variants:$('#f_variants',form).value.split(',').map(s=>s.trim()).filter(Boolean),
+        stock:$('#f_stock',form).checked, is_new:$('#f_new',form).checked, tag:$('#f_tag',form).value.trim(),
+        description:$('#f_desc',form).value.trim(), curated:$('#f_cur',form).checked,
+        orden:parseInt($('#f_orden',form).value||'0',10)
+      }
+      const { error } = await sb.from('productos').upsert(row)
+      if(error) throw error
+      closeForm(); toast('Producto guardado.'); renderProductos()
+    }catch(err){ btn.disabled=false; btn.textContent='Guardar'; toast('Error: '+err.message,true) }
+  }
+}
+
+// ═══════════════ CONJUNTOS ═══════════════
+async function renderConjuntos(){
+  const view=$('#view'); view.innerHTML=''
+  view.append(el('div',{class:'panel-head'},
+    el('h2',{},'Conjuntos'),
+    el('button',{class:'btn gold', onclick:()=>conjForm(null)},'＋ Nuevo conjunto')
+  ))
+  const list=el('div',{class:'list'}); view.append(list)
+  const { data, error } = await sb.from('conjuntos').select('*, conjunto_items(*)').order('orden')
+  if(error){ list.append(el('div',{class:'empty'},'Error: '+error.message)); return }
+  if(!data.length){ list.append(el('div',{class:'empty'},'Sin conjuntos.')); return }
+  data.forEach(c=>{
+    list.append(el('div',{class:'item'},
+      c.img_url?el('img',{class:'thumb',src:imgSrc(c.img_url),alt:'',onerror:function(){this.style.visibility='hidden'}}):el('div',{class:'thumb'}),
+      el('div',{class:'meta'},
+        el('div',{class:'n'}, c.name),
+        el('div',{class:'s'}, `${c.pieces||''} · ${(c.conjunto_items||[]).length} piezas`)
+      ),
+      el('div',{class:'price'}, gs(c.price)),
+      el('div',{class:'acts'},
+        el('button',{class:'btn ghost sm', onclick:()=>conjForm(c)},'Editar'),
+        el('button',{class:'btn danger sm', onclick:()=>del('conjuntos','id',c.id,c.name)},'Borrar')
+      )
+    ))
+  })
+}
+
+function conjForm(c){
+  const isNew=!c; c=c||{ conjunto_items:[] }
+  let uploadedUrl=c.img_url||''
+  const fileInput=el('input',{type:'file',accept:'image/*'})
+  const preview=el('img',{class:'imgprev'})
+  if(uploadedUrl){ preview.src=imgSrc(uploadedUrl); preview.style.display='block' }
+  const itemsWrap=el('div',{class:'items-edit'})
+  const addItemRow=(name='',price='')=>{
+    const r=el('div',{class:'ir'},
+      el('input',{type:'text',value:name,placeholder:'Pieza (ej. Cadena Grummet 4 mm)'}),
+      el('input',{type:'number',value:price,placeholder:'Precio'}),
+      el('button',{class:'btn danger sm', onclick:()=>r.remove()},'✕')
+    )
+    itemsWrap.append(r)
+  }
+  ;(c.conjunto_items||[]).sort((a,b)=>(a.orden||0)-(b.orden||0)).forEach(i=>addItemRow(i.name,i.price))
+  if(!(c.conjunto_items||[]).length){ addItemRow(); addItemRow() }
+
+  const f=(id,label,val,type='text',ph='')=>el('div',{},el('label',{},label),type==='textarea'?el('textarea',{id},val??''):el('input',{id,type,value:val??'',placeholder:ph}))
+  const form=el('div',{class:'form'},
+    el('h3',{}, isNew?'Nuevo conjunto':'Editar conjunto'),
+    el('div',{class:'grid'},
+      el('div',{class:'row'},
+        el('div',{},el('label',{},'ID'),el('input',{id:'c_id',value:c.id||'',placeholder:'ej. conj-baiana',disabled:isNew?null:''})),
+        f('c_name','Nombre',c.name,'text','Conjunto Grummet')
+      ),
+      el('div',{class:'row'},
+        f('c_pieces','Piezas (texto)',c.pieces,'text','Cadena + Pulsera'),
+        f('c_line','Línea',c.line,'text','Vemar Signature')
+      ),
+      el('div',{class:'row'},
+        f('c_price','Precio del conjunto (Gs)',c.price,'number'),
+        f('c_material','Material',c.material,'text','Oro laminado 18k')
+      ),
+      el('div',{},el('label',{},'Imagen'),fileInput,el('div',{class:'hint'},'Se sube a Storage al guardar. Vacío = conservar actual.'),preview),
+      f('c_desc','Descripción',c.description,'textarea'),
+      el('div',{},
+        el('label',{},'Piezas incluidas (nombre + precio individual)'),
+        itemsWrap,
+        el('button',{class:'btn ghost sm',style:'margin-top:8px',onclick:()=>addItemRow()},'＋ Agregar pieza')
+      ),
+      f('c_orden','Orden',c.orden??0,'number')
+    ),
+    el('div',{class:'foot'},
+      isNew?el('span',{}):el('button',{class:'btn danger',onclick:()=>del('conjuntos','id',c.id,c.name,true)},'Borrar'),
+      el('div',{class:'row',style:'flex:none'},
+        el('button',{class:'btn ghost',onclick:closeForm},'Cancelar'),
+        el('button',{class:'btn gold',id:'saveC',onclick:save},'Guardar')
+      )
+    )
+  )
+  fileInput.addEventListener('change',()=>{const fl=fileInput.files[0];if(fl){preview.src=URL.createObjectURL(fl);preview.style.display='block'}})
+  openForm(form)
+
+  async function save(){
+    const id=$('#c_id',form).value.trim(), name=$('#c_name',form).value.trim()
+    if(!id||!name){ toast('ID y nombre son obligatorios.',true); return }
+    const btn=$('#saveC',form); btn.disabled=true; btn.innerHTML='<span class="spin"></span>'
+    try{
+      const up=await uploadImage(fileInput.files[0],'conjuntos'); if(up) uploadedUrl=up
+      const row={ id, name, pieces:$('#c_pieces',form).value.trim(), line:$('#c_line',form).value.trim(),
+        price:parseInt($('#c_price',form).value||'0',10), img_url:uploadedUrl, material:$('#c_material',form).value.trim(),
+        description:$('#c_desc',form).value.trim(), orden:parseInt($('#c_orden',form).value||'0',10) }
+      let e1=(await sb.from('conjuntos').upsert(row)).error; if(e1) throw e1
+      // Regenerar piezas
+      await sb.from('conjunto_items').delete().eq('conjunto_id',id)
+      const items=[...itemsWrap.querySelectorAll('.ir')].map((r,idx)=>{
+        const [n,pr]=r.querySelectorAll('input')
+        return { conjunto_id:id, name:n.value.trim(), price:parseInt(pr.value||'0',10), orden:idx+1 }
+      }).filter(i=>i.name)
+      if(items.length){ const e2=(await sb.from('conjunto_items').insert(items)).error; if(e2) throw e2 }
+      closeForm(); toast('Conjunto guardado.'); renderConjuntos()
+    }catch(err){ btn.disabled=false; btn.textContent='Guardar'; toast('Error: '+err.message,true) }
+  }
+}
+
+// ═══════════════ CATEGORÍAS ═══════════════
+async function renderCategorias(){
+  const view=$('#view'); view.innerHTML=''
+  view.append(el('div',{class:'panel-head'},
+    el('h2',{},'Categorías'),
+    el('button',{class:'btn gold', onclick:()=>catForm(null)},'＋ Nueva categoría')
+  ))
+  const list=el('div',{class:'list'}); view.append(list)
+  const { data, error } = await sb.from('categorias').select('*').order('orden')
+  if(error){ list.append(el('div',{class:'empty'},'Error: '+error.message)); return }
+  if(!data.length){ list.append(el('div',{class:'empty'},'Sin categorías.')); return }
+  data.forEach(c=>{
+    list.append(el('div',{class:'item'},
+      c.img_url?el('img',{class:'thumb',src:imgSrc(c.img_url),alt:'',onerror:function(){this.style.visibility='hidden'}}):el('div',{class:'thumb'}),
+      el('div',{class:'meta'}, el('div',{class:'n'},c.name), el('div',{class:'s'},'key: '+c.key)),
+      el('div',{class:'acts'},
+        el('button',{class:'btn ghost sm',onclick:()=>catForm(c)},'Editar'),
+        el('button',{class:'btn danger sm',onclick:()=>del('categorias','key',c.key,c.name)},'Borrar')
+      )
+    ))
+  })
+}
+
+function catForm(c){
+  const isNew=!c; c=c||{}
+  let uploadedUrl=c.img_url||''
+  const fileInput=el('input',{type:'file',accept:'image/*'})
+  const preview=el('img',{class:'imgprev'})
+  if(uploadedUrl){ preview.src=imgSrc(uploadedUrl); preview.style.display='block' }
+  const f=(id,label,val,ph='')=>el('div',{},el('label',{},label),el('input',{id,value:val??'',placeholder:ph}))
+  const form=el('div',{class:'form'},
+    el('h3',{}, isNew?'Nueva categoría':'Editar categoría'),
+    el('div',{class:'grid'},
+      el('div',{class:'row'},
+        el('div',{},el('label',{},'Key (identificador, sin espacios)'),el('input',{id:'k_key',value:c.key||'',placeholder:'anillos',disabled:isNew?null:''})),
+        f('k_name','Nombre','','') // set below
+      ),
+      el('div',{},el('label',{},'Imagen'),fileInput,el('div',{class:'hint'},'Se sube a Storage al guardar. Vacío = conservar actual.'),preview),
+      el('div',{class:'row'},
+        f('k_pos','Posición de imagen (CSS)',c.img_pos,'center 45%'),
+        f('k_orden','Orden',c.orden??0,'')
+      )
+    ),
+    el('div',{class:'foot'},
+      isNew?el('span',{}):el('button',{class:'btn danger',onclick:()=>del('categorias','key',c.key,c.name,true)},'Borrar'),
+      el('div',{class:'row',style:'flex:none'},
+        el('button',{class:'btn ghost',onclick:closeForm},'Cancelar'),
+        el('button',{class:'btn gold',id:'saveK',onclick:save},'Guardar')
+      )
+    )
+  )
+  $('#k_name',form).value=c.name||''
+  fileInput.addEventListener('change',()=>{const fl=fileInput.files[0];if(fl){preview.src=URL.createObjectURL(fl);preview.style.display='block'}})
+  openForm(form)
+
+  async function save(){
+    const key=$('#k_key',form).value.trim(), name=$('#k_name',form).value.trim()
+    if(!key||!name){ toast('Key y nombre son obligatorios.',true); return }
+    const btn=$('#saveK',form); btn.disabled=true; btn.innerHTML='<span class="spin"></span>'
+    try{
+      const up=await uploadImage(fileInput.files[0],'categorias'); if(up) uploadedUrl=up
+      const row={ key, name, img_url:uploadedUrl, img_pos:$('#k_pos',form).value.trim()||'center', orden:parseInt($('#k_orden',form).value||'0',10) }
+      const { error } = await sb.from('categorias').upsert(row); if(error) throw error
+      closeForm(); toast('Categoría guardada.'); renderCategorias()
+    }catch(err){ btn.disabled=false; btn.textContent='Guardar'; toast('Error: '+err.message,true) }
+  }
+}
+
+// ── Delete ──────────────────────────────────────────────────────────────────
+async function del(table,keyCol,val,label,fromForm){
+  if(!confirm(`¿Borrar "${label}"? Esta acción no se puede deshacer.`)) return
+  const { error } = await sb.from(table).delete().eq(keyCol,val)
+  if(error){ toast('Error: '+error.message,true); return }
+  if(fromForm) closeForm()
+  toast('Eliminado.')
+  showTab(current)
+}
+
+// ── Start ───────────────────────────────────────────────────────────────────
+gate()
+</script>
+</body>
+</html>

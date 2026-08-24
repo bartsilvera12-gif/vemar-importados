@@ -1220,6 +1220,55 @@ const CONJUNTOS = [
   }
 ];
 
+// ── Catálogo dinámico desde Supabase (schema `vemar`) ───────────────────────────
+// El sitio arranca con los datos locales de arriba (render instantáneo / fallback)
+// y, si Supabase responde, reemplaza el catálogo en vivo. Solo lectura pública.
+const SB_URL = 'https://api.neura.com.py';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc0MTAxNDYxLCJleHAiOjE5MzE3ODE0NjF9.7_wAph8IolPMXtgfpezSwS5XR62IdD__qhqCywLDp3Q';
+async function sbGet(path) {
+  const r = await fetch(SB_URL + '/rest/v1/' + path, {
+    headers: { apikey: SB_ANON, 'Accept-Profile': 'vemar' }
+  });
+  if (!r.ok) throw new Error('Supabase ' + r.status);
+  return r.json();
+}
+function sbMapProduct(row) {
+  return {
+    id: row.id, sku: row.sku || '', name: row.name, line: row.line || '',
+    cat: row.cat || '', price: Number(row.price) || 0, img: row.img_url || '', imgAlt: row.img_alt || '',
+    material: row.material || '', color: row.color || '', medidas: row.medidas || '',
+    variants: (Array.isArray(row.variants) && row.variants.length) ? row.variants : ['Única'],
+    stock: !!row.stock, isNew: !!row.is_new, tag: row.tag || '', description: row.description || ''
+  };
+}
+async function loadCatalogFromSupabase() {
+  const [prods, cats, conj] = await Promise.all([
+    sbGet('productos?select=*&order=orden.asc'),
+    sbGet('categorias?select=*&order=orden.asc'),
+    sbGet('conjuntos?select=*,conjunto_items(name,price,orden)&order=orden.asc')
+  ]);
+  if (Array.isArray(prods) && prods.length) {
+    PRODUCTS.length = 0; prods.forEach((r) => PRODUCTS.push(sbMapProduct(r)));
+    CURATED.length = 0;
+    prods.filter((r) => r.curated)
+      .sort((a, b) => (a.curated_orden || 0) - (b.curated_orden || 0))
+      .forEach((r) => CURATED.push(r.id));
+  }
+  if (Array.isArray(cats) && cats.length) {
+    CATS.length = 0;
+    cats.forEach((c) => CATS.push({ key: c.key, name: c.name, img: c.img_url || '', imgPos: c.img_pos || 'center' }));
+  }
+  if (Array.isArray(conj) && conj.length) {
+    CONJUNTOS.length = 0;
+    conj.forEach((c) => CONJUNTOS.push({
+      id: c.id, name: c.name, pieces: c.pieces || '', line: c.line || '', price: Number(c.price) || 0,
+      img: c.img_url || '', imgPos: c.img_pos || 'center', material: c.material || '', description: c.description || '',
+      includes: (c.conjunto_items || []).slice().sort((a, b) => (a.orden || 0) - (b.orden || 0))
+        .map((i) => ({ name: i.name, price: Number(i.price) || 0 }))
+    }));
+  }
+}
+
 // ── GradientWaves (React Bits) portado a WebGL2 puro, sin dependencias ──────────
 const GW_VERT = `#version 300 es
 in vec2 position;
@@ -1446,6 +1495,10 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
+    // Carga el catálogo desde Supabase y re-renderiza al llegar (fallback: datos locales).
+    loadCatalogFromSupabase()
+      .then(() => this.setState({ catalogVer: (this.state.catalogVer || 0) + 1 }))
+      .catch((e) => console.warn('Catálogo Supabase no disponible, usando datos locales.', e));
     this.sync = () => { this.setState({ isMobile: window.innerWidth < 900 }); setTimeout(() => { this.measureTrack(); this.updateTrack(); }, 60); };
     this.sync();
     // En celular los filtros del catálogo arrancan colapsados (si no, tapan los productos).
