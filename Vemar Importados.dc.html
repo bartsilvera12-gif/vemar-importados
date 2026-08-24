@@ -86,6 +86,18 @@
   .conj-ed__cta svg { transition: transform .4s cubic-bezier(.22,1,.36,1), stroke .4s ease; }
   .conj-ed__cta:hover { background: #FFFFFF; border-color: #FFFFFF; }
   .conj-ed__cta:hover svg { transform: rotate(-45deg); stroke: #171717; }
+  /* Colecciones estilo DestinationCard: tarjetas con zoom, glow temático y botón. */
+  .dcards { display: grid; grid-template-columns: 1fr; gap: clamp(20px,2.6vw,34px); max-width: 1320px; margin: 0 auto; padding: 0 clamp(20px,5vw,64px); }
+  @media (min-width: 760px) { .dcards { grid-template-columns: 1fr 1fr; } }
+  .dcard { position: relative; display: block; height: clamp(420px,50vw,560px); border-radius: 16px; overflow: hidden; text-decoration: none; box-shadow: 0 0 40px -16px hsl(var(--theme) / .55); transition: transform .55s cubic-bezier(.22,1,.36,1), box-shadow .55s ease; }
+  .dcard:hover { transform: scale(1.02); box-shadow: 0 0 64px -14px hsl(var(--theme) / .7); }
+  .dcard__img { position: absolute; inset: 0; background-size: cover; transition: transform .7s cubic-bezier(.22,1,.36,1); }
+  .dcard:hover .dcard__img { transform: scale(1.08); }
+  .dcard__grad { position: absolute; inset: 0; background: linear-gradient(to top, hsl(var(--theme) / .93), hsl(var(--theme) / .55) 32%, transparent 62%); }
+  .dcard__btn { display: flex; align-items: center; justify-content: space-between; gap: 14px; max-width: 300px; margin-top: clamp(18px,2.6vw,28px); background: hsl(var(--theme) / .24); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid hsl(var(--theme) / .38); border-radius: 10px; padding: 13px 18px; transition: background .3s ease, border-color .3s ease; }
+  .dcard:hover .dcard__btn { background: hsl(var(--theme) / .44); border-color: hsl(var(--theme) / .58); }
+  .dcard__btn svg { transition: transform .3s ease; flex: 0 0 auto; }
+  .dcard:hover .dcard__btn svg { transform: translateX(5px); }
   @keyframes vShine { 0% { transform: translateX(-120%) skewX(-18deg); } 60%, 100% { transform: translateX(320%) skewX(-18deg); } }
   /* Carrusel que se desplaza pero sin barra de scroll visible. */
   .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
@@ -208,35 +220,40 @@
       </div>
     </section>
 
-    <section id="colecciones" class="coll" style="margin-top:clamp(48px,7vh,100px);background:#141414">
+    <section id="colecciones" style="background:#0C0C0C;padding:clamp(40px,6vw,88px) 0">
+      <div class="dcards">
 
-      <a href="#joyeria" onClick="{{ goEsencial }}" class="coll__panel" aria-label="Explorar Vemar Esencial">
-        <img class="coll__img" src="Colecciones/Esencial/Cadena%20Sadusa%205mm%20mas%20cruz%20500%20mil.jpeg" alt="Vemar Esencial" draggable="false" style="object-position:center 38%">
-        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(12,12,12,.78) 0%,rgba(12,12,12,.2) 46%,rgba(12,12,12,0) 74%)"></div>
-        <div style="position:absolute;inset:auto 0 0 0;padding:clamp(34px,4vw,64px)">
-          <span class="coll__line"></span>
-          <p style="margin:0 0 2px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(30px,3vw,44px);line-height:1;color:#EFE3C9">Línea</p>
-          <h3 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(26px,3.2vw,44px);color:#FFFFFF;letter-spacing:0.01em;line-height:1.04">Vemar Esencial</h3>
-          <p style="margin:16px 0 24px;color:#EDEBE6;font-size:14.5px;line-height:1.7;max-width:420px;font-weight:300">Diseños versátiles, delicados y contemporáneos para acompañarte todos los días.</p>
-          <span style="display:inline-flex;align-items:center;gap:11px;color:#FFFFFF;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase">Explorar colección
-            <svg class="coll__arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg>
-          </span>
-        </div>
-      </a>
+        <a href="#joyeria" onClick="{{ goEsencial }}" class="dcard" style="--theme:40 42% 24%" aria-label="Explorar Vemar Esencial">
+          <div class="dcard__img" style="background-image:url('Colecciones/Esencial/Cadena%20Sadusa%205mm%20mas%20cruz%20500%20mil.jpeg');background-position:center 38%"></div>
+          <div class="dcard__grad"></div>
+          <div style="position:absolute;inset:auto 0 0 0;padding:clamp(24px,3.5vw,46px);color:#FFFFFF">
+            <span style="display:block;width:34px;height:1px;background:#E8D9BE;margin-bottom:16px"></span>
+            <p style="margin:0 0 2px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(26px,2.8vw,40px);line-height:1;color:#EFE3C9">Línea</p>
+            <h3 style="margin:0;font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(24px,3vw,40px);color:#FFFFFF;letter-spacing:0.01em;line-height:1.05">Vemar Esencial</h3>
+            <p style="margin:14px 0 0;color:#EDEBE6;font-size:14px;line-height:1.7;max-width:400px;font-weight:300">Diseños versátiles, delicados y contemporáneos para acompañarte todos los días.</p>
+            <div class="dcard__btn">
+              <span style="font-size:10.5px;letter-spacing:0.22em;text-transform:uppercase;font-weight:500">Explorar colección</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg>
+            </div>
+          </div>
+        </a>
 
-      <a href="#joyeria" onClick="{{ goSignature }}" class="coll__panel" aria-label="Explorar Vemar Signature">
-        <img class="coll__img" src="Colecciones/Signature/Rosario%20480.000%20gs.jpeg" alt="Vemar Signature" draggable="false" style="object-position:center 38%">
-        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(12,12,12,.8) 0%,rgba(12,12,12,.24) 46%,rgba(12,12,12,0) 74%)"></div>
-        <div style="position:absolute;inset:auto 0 0 0;padding:clamp(34px,4vw,64px)">
-          <span class="coll__line"></span>
-          <p style="margin:0 0 2px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(30px,3vw,44px);line-height:1;color:#EFE3C9">Línea</p>
-          <h3 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(26px,3.2vw,44px);color:#FFFFFF;letter-spacing:0.01em;line-height:1.04">Vemar Signature</h3>
-          <p style="margin:16px 0 24px;color:#EDEBE6;font-size:14.5px;line-height:1.7;max-width:420px;font-weight:300">Piezas seleccionadas por su presencia, terminaciones y carácter excepcional.</p>
-          <span style="display:inline-flex;align-items:center;gap:11px;color:#FFFFFF;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase">Explorar colección
-            <svg class="coll__arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg>
-          </span>
-        </div>
-      </a>
+        <a href="#joyeria" onClick="{{ goSignature }}" class="dcard" style="--theme:28 40% 19%" aria-label="Explorar Vemar Signature">
+          <div class="dcard__img" style="background-image:url('Colecciones/Signature/Rosario%20480.000%20gs.jpeg');background-position:center 38%"></div>
+          <div class="dcard__grad"></div>
+          <div style="position:absolute;inset:auto 0 0 0;padding:clamp(24px,3.5vw,46px);color:#FFFFFF">
+            <span style="display:block;width:34px;height:1px;background:#E8D9BE;margin-bottom:16px"></span>
+            <p style="margin:0 0 2px;font-family:'Pinyon Script','Playfair Display',cursive;font-size:clamp(26px,2.8vw,40px);line-height:1;color:#EFE3C9">Línea</p>
+            <h3 style="margin:0;font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(24px,3vw,40px);color:#FFFFFF;letter-spacing:0.01em;line-height:1.05">Vemar Signature</h3>
+            <p style="margin:14px 0 0;color:#EDEBE6;font-size:14px;line-height:1.7;max-width:400px;font-weight:300">Piezas seleccionadas por su presencia, terminaciones y carácter excepcional.</p>
+            <div class="dcard__btn">
+              <span style="font-size:10.5px;letter-spacing:0.22em;text-transform:uppercase;font-weight:500">Explorar colección</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg>
+            </div>
+          </div>
+        </a>
+
+      </div>
     </section>
 
     <section id="seleccion" ref="{{ pinRef }}" style="position:relative;background:#FFFFFF;border-top:1px solid #F0EEE9;padding:clamp(36px,5vh,68px) 0 clamp(44px,6vh,84px);overflow:hidden">
