@@ -77,13 +77,6 @@
   .no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
   /* Selección Vemar: evita que el arrastre nativo de enlaces/imágenes robe el gesto de arrastre. */
   #seleccion a, #seleccion img { -webkit-user-drag: none; user-select: none; }
-  /* Hero: en celular el video vertical llena bien (cover). En desktop se muestra completo
-     (contain, menos zoom) con una copia borrosa de fondo que rellena los costados. */
-  .hero-vid-blur { display: none; }
-  @media (min-width: 900px) {
-    .hero-vid-blur { display: block; }
-    .hero-vid-main { object-fit: contain !important; object-position: center !important; }
-  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   }
@@ -182,10 +175,7 @@
   <main id="inicio">
 
     <section style="position:relative;overflow:hidden;min-height:100vh;height:100dvh;margin-top:calc(-1 * clamp(70px,8vw,92px));display:flex;align-items:center;background:#141414">
-      <video class="hero-vid-blur" ref="{{ bgVideoBlurRef }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" preload="auto" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%;filter:blur(30px) brightness(.5);transform:scale(1.14)">
-        <source src="uploads/hero2-web.mp4" type="video/mp4">
-      </video>
-      <video class="hero-vid-main" ref="{{ bgVideoRef }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" preload="auto" poster="uploads/hero2-poster.jpg" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%">
+      <video ref="{{ bgVideoRef }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" preload="auto" poster="uploads/hero2-poster.jpg" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%">
         <source src="uploads/hero2-web.mp4" type="video/mp4">
       </video>
       <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,14,14,.8) 0%,rgba(14,14,14,.55) 40%,rgba(14,14,14,.18) 72%,rgba(14,14,14,.05) 100%)"></div>
