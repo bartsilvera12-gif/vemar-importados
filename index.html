@@ -29,6 +29,10 @@
   /* Al bajar: negro sólido. Sobre el hero: transparente (se ve el video). */
   header { background: #0A0A0A; }
   header[data-solid="0"] { background: transparent; border-bottom-color: transparent; box-shadow: none; }
+  /* Logo: transparente sobre el hero, con fondo negro al bajar. */
+  .logo-black { display: none; }
+  header[data-solid="1"] .logo-black { display: block; }
+  header[data-solid="1"] .logo-transp { display: none; }
   header a { color: #EFE9DC; }
   header a:hover { color: #B9A078; }
   /* El desplegable de Joyería tiene fondo claro propio: su texto vuelve a ser oscuro. */
@@ -135,7 +139,8 @@
       </nav>
 
       <a href="#inicio" onClick="{{ goHome }}" aria-label="Vemar Importados — inicio" style="justify-self:center;display:flex;align-items:center">
-        <img src="uploads/logo1.jpeg" alt="Vemar Importados" style="height:clamp(54px,7vw,78px);width:auto;display:block;mix-blend-mode:lighten">
+        <img class="logo-transp" src="uploads/logo1transparente.png" alt="Vemar Importados" style="height:clamp(54px,7vw,80px);width:auto">
+        <img class="logo-black" src="uploads/logo1.jpeg" alt="Vemar Importados" style="height:clamp(54px,7vw,80px);width:auto">
       </a>
 
       <nav style="display:flex;align-items:center;gap:clamp(14px,2.2vw,30px);justify-self:end">
