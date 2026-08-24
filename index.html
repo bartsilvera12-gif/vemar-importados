@@ -234,12 +234,12 @@
       </a>
     </section>
 
-    <section id="seleccion" ref="{{ pinRef }}" style="position:relative;background:#FFFFFF;border-top:1px solid #F0EEE9;padding:clamp(40px,6vh,78px) 0 clamp(60px,9vh,120px);overflow:hidden">
-      <div style="display:flex;flex-direction:column;gap:clamp(28px,4vh,52px)">
+    <section id="seleccion" ref="{{ pinRef }}" style="position:relative;background:#FFFFFF;border-top:1px solid #F0EEE9;padding:clamp(36px,5vh,68px) 0 clamp(44px,6vh,84px);overflow:hidden">
+      <div style="display:flex;flex-direction:column;gap:clamp(22px,3vh,40px)">
         <div style="padding:0 clamp(20px,5vw,64px);display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px">
           <div style="max-width:720px">
             <p class="script-accent" style="margin:0 0 6px;color:#B9A078">Piezas seleccionadas</p>
-            <h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(28px,3.6vw,48px);line-height:1.06">Selección Vemar</h2>
+            <h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(24px,3vw,38px);line-height:1.06">Selección Vemar</h2>
             <p style="margin:12px 0 0;font-size:13.5px;line-height:1.65;color:#333333;font-weight:300;max-width:540px">Joyas elegidas para acompañar momentos inolvidables.</p>
           </div>
           <div style="display:flex;gap:12px;flex:0 0 auto">
@@ -2051,9 +2051,9 @@ class Component extends DCLogic {
         d.catName = { anillos: 'Anillos', aros: 'Aros', cadenas: 'Cadenas', pulseras: 'Pulseras', dijes: 'Dijes', sets: 'Sets' }[x.cat] || '';
         return d;
       }),
-      rowH: 'clamp(500px,78vh,680px)',
-      coverW: st.isMobile ? 'min(80vw,380px)' : '45vw',
-      cardW: st.isMobile ? 'min(62vw,300px)' : '32vw',
+      rowH: 'clamp(400px,62vh,560px)',
+      coverW: st.isMobile ? 'min(74vw,320px)' : '38vw',
+      cardW: st.isMobile ? 'min(56vw,260px)' : '26vw',
       pinRef: (el) => { this.pin = el; this.installTrackDriver(); this.measureTrack(); },
       trackRef: (el) => { this.track = el; this.measureTrack(); },
       rowRef: (el) => {
