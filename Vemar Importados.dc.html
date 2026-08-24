@@ -76,6 +76,13 @@
   @keyframes vRise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
   @keyframes vFadeSoft { from { opacity: 0; } to { opacity: 1; } }
   @keyframes vKenBurns { 0% { transform: scale(1) translate(0, 0); } 100% { transform: scale(1.1) translate(-2%, -1.5%); } }
+  /* Conjuntos destacado (editorial): retrato + bloque de info superpuesto. */
+  .conj-ed { display: flex; align-items: center; flex-wrap: wrap; }
+  .conj-ed__info { position: relative; z-index: 2; flex: 1 1 320px; min-width: 260px; }
+  @media (min-width: 860px) { .conj-ed__info { margin-left: -60px; } }
+  .conj-ed__cta svg { transition: transform .4s cubic-bezier(.22,1,.36,1), stroke .4s ease; }
+  .conj-ed__cta:hover { background: #171717; border-color: #171717; }
+  .conj-ed__cta:hover svg { transform: rotate(-45deg); stroke: #FFFFFF; }
   @keyframes vShine { 0% { transform: translateX(-120%) skewX(-18deg); } 60%, 100% { transform: translateX(320%) skewX(-18deg); } }
   /* Carrusel que se desplaza pero sin barra de scroll visible. */
   .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
@@ -387,23 +394,25 @@
 
 
     <sc-if value="{{ conjuntoFeatured }}" hint-placeholder-val="{{ true }}">
-    <section data-reveal style="background:#0C0C0C">
-      <div style="max-width:1440px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:stretch">
-        <a href="#conjuntos" onClick="{{ goConjuntos }}" aria-label="Ver conjuntos" style="flex:1 1 420px;min-height:min(52vh,440px);position:relative;overflow:hidden;display:block">
-          <img src="{{ conjuntoFeatured.img }}" alt="{{ conjuntoFeatured.name }}" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:{{ conjuntoFeatured.imgPos }};animation:vKenBurns 18s ease-in-out infinite alternate;will-change:transform">
-          <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(12,12,12,0) 40%,rgba(12,12,12,.55) 100%)"></div>
-          <div aria-hidden="true" style="position:absolute;top:0;bottom:0;left:0;width:40%;pointer-events:none;background:linear-gradient(105deg,rgba(255,255,255,0) 0%,rgba(255,240,205,.28) 50%,rgba(255,255,255,0) 100%);animation:vShine 7s ease-in-out 1.5s infinite"></div>
-        </a>
-        <div style="flex:1 1 380px;padding:clamp(40px,5vw,84px) clamp(28px,5vw,80px);display:flex;flex-direction:column;justify-content:center;color:#FFFFFF">
-          <p class="script-accent" style="margin:0 0 10px;color:#D4BC8C">Nuevo · Conjuntos</p>
-          <h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(26px,3.2vw,42px);line-height:1.06">{{ conjuntoFeatured.name }}</h2>
-          <p style="margin:14px 0 0;font-size:10px;letter-spacing:0.24em;text-transform:uppercase;color:#B9A078">{{ conjuntoFeatured.pieces }}</p>
-          <p style="margin:22px 0 0;font-size:15px;line-height:1.75;color:#ECEAE5;max-width:420px;font-weight:300">Llevá el dúo completo, a juego, con un precio especial por el conjunto.</p>
-          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:24px;margin-top:30px">
-            <span style="font-family:'Playfair Display',serif;font-size:28px;color:#FFFFFF">{{ conjuntoFeatured.priceFmt }}</span>
-            <a href="#conjuntos" onClick="{{ goConjuntos }}" style="display:inline-flex;align-items:center;gap:11px;padding:15px 32px;border:1px solid rgba(255,255,255,.7);color:#FFFFFF;font-size:10.5px;letter-spacing:0.24em;text-transform:uppercase;transition:background .45s ease,color .45s ease,border-color .45s ease" style-hover="background:#FFFFFF;color:#171717;border-color:#FFFFFF">Ver conjuntos
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg>
-            </a>
+    <section data-reveal style="background:#FFFFFF;padding:clamp(44px,6vw,96px) clamp(20px,5vw,64px)">
+      <div style="max-width:1080px;margin:0 auto">
+        <p style="margin:0 0 clamp(12px,2vw,22px);font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#B9A078">Nuevo · Conjuntos</p>
+        <div class="conj-ed">
+          <a href="#conjuntos" onClick="{{ goConjuntos }}" aria-label="Ver conjuntos" style="position:relative;flex:0 0 auto;width:clamp(240px,32vw,340px);height:clamp(330px,44vw,480px);overflow:hidden;background:#F5F3EF;display:block">
+            <img src="{{ conjuntoFeatured.img }}" alt="{{ conjuntoFeatured.name }}" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:{{ conjuntoFeatured.imgPos }};transition:transform .7s cubic-bezier(.22,1,.36,1)" style-hover="transform:scale(1.05)">
+            <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.24),transparent 42%)"></div>
+          </a>
+          <div class="conj-ed__info">
+            <p style="margin:0;font-family:'Playfair Display',serif;font-weight:300;font-size:clamp(40px,6vw,72px);line-height:1.03;letter-spacing:-0.01em;color:#171717">{{ conjuntoFeatured.top }}<br><span style="font-weight:500">{{ conjuntoFeatured.bottom }}</span></p>
+            <div style="display:flex;gap:clamp(20px,3vw,34px);margin-top:clamp(26px,4vw,50px);align-items:flex-start;flex-wrap:wrap">
+              <a href="#conjuntos" onClick="{{ goConjuntos }}" class="conj-ed__cta" aria-label="Ver conjuntos" style="flex:0 0 auto;width:74px;height:74px;border-radius:50%;border:1px solid #D8D2C4;display:flex;align-items:center;justify-content:center;transition:background .4s ease,border-color .4s ease">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5A5A5A" stroke-width="1.4"><path d="M4 12h15 M13 6l6 6-6 6"></path></svg>
+              </a>
+              <div style="max-width:340px">
+                <p style="margin:0 0 12px;font-size:9.5px;letter-spacing:0.22em;text-transform:uppercase;color:#B9A078">{{ conjuntoFeatured.pieces }} · <span style="color:#171717">{{ conjuntoFeatured.priceFmt }}</span></p>
+                <p style="margin:0;font-size:14px;line-height:1.85;color:#6B6B6B;font-weight:300">Llevá el dúo completo, a juego, con un precio especial por el conjunto.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1978,7 +1987,10 @@ class Component extends DCLogic {
       }),
       conjuntoFeatured: (() => {
         const c = CONJUNTOS[0]; if (!c) return null;
-        return { name: c.name, pieces: c.pieces, priceFmt: this.gs(c.price), img: c.img, imgPos: c.imgPos || 'center' };
+        const parts = String(c.name).trim().split(' ');
+        const bottom = parts.length > 1 ? parts[parts.length - 1] : '';
+        const top = parts.length > 1 ? parts.slice(0, -1).join(' ') : c.name;
+        return { name: c.name, top, bottom, pieces: c.pieces, priceFmt: this.gs(c.price), img: c.img, imgPos: c.imgPos || 'center' };
       })(),
       megaOpen: st.megaOpen && !st.isMobile,
       openMega: () => { if (this._megaTimer) { clearTimeout(this._megaTimer); this._megaTimer = null; } this.setState({ megaOpen: true }); },
