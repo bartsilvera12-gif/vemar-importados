@@ -67,13 +67,17 @@ create table if not exists vemar.conjuntos (
   pieces      text        default '',    -- 'Cadena + Pulsera'
   line        text        default '',
   price       bigint      default 0,     -- precio del conjunto
-  img_url     text        default '',
+  img_url     text        default '',    -- portada (= images[0])
+  images      text[]      default '{}',  -- galería completa (portada primero)
   img_pos     text        default 'center',
   material    text        default '',
   description text        default '',
   orden       int         default 0,
   created_at  timestamptz default now()
 );
+
+-- Si la tabla ya existía sin la columna de galería, agregarla:
+alter table vemar.conjuntos add column if not exists images text[] default '{}';
 
 -- ── Piezas incluidas en cada conjunto (con su precio individual de referencia) ─
 create table if not exists vemar.conjunto_items (

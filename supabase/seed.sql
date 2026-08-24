@@ -86,6 +86,9 @@ on conflict (id) do update set
 update vemar.productos
   set images = array[img_url]
   where (images is null or array_length(images,1) is null) and coalesce(img_url,'') <> '';
+update vemar.conjuntos
+  set images = array[img_url]
+  where (images is null or array_length(images,1) is null) and coalesce(img_url,'') <> '';
 
 -- Piezas del conjunto (se regeneran para evitar duplicados al re-correr)
 delete from vemar.conjunto_items where conjunto_id = 'conj-grummet';

@@ -299,6 +299,17 @@ function genSku(cat){
   return 'VM-'+code+'-'+String(max+1).padStart(3,'0')
 }
 
+// ID automático de conjunto a partir del nombre (conj-<slug>, único vs cache).
+let CONJUNTOS_CACHE=[]
+function slugify(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') }
+function genConjId(name){
+  const base = 'conj-' + (slugify(name).replace(/^conjunto-?/, '') || 'set')
+  const taken = new Set(CONJUNTOS_CACHE.map(c=>c.id))
+  if(!taken.has(base)) return base
+  let n=2; while(taken.has(base+'-'+n)) n++
+  return base+'-'+n
+}
+
 async function renderProductos(){
   const view=$('#view'); view.innerHTML=''
   view.append(el('div',{class:'panel-head'},
@@ -361,12 +372,10 @@ function starBtn(p){
   return b
 }
 
-function productForm(p){
-  const isNew=!p; p=p||{ variants:['Única'], stock:true, cat:(CATS_CACHE[0]?.key||'') }
-
-  // ── Editor de galería (varias imágenes) ──────────────────────────────────
-  // gallery = URLs ya guardadas (strings) · newFiles = archivos nuevos a subir.
-  let gallery = (Array.isArray(p.images) && p.images.length) ? p.images.slice() : (p.img_url ? [p.img_url] : [])
+// ── Editor de galería reutilizable (varias imágenes con portada) ─────────────
+// Devuelve { node, commit } · commit(folder) sube las nuevas y da {images,cover}.
+function makeGalleryEditor(initialImages){
+  let gallery = (Array.isArray(initialImages) ? initialImages.filter(Boolean) : []).slice()
   const newFiles = []
   const fileInput = el('input',{type:'file', accept:'image/*', multiple:''})
   const galWrap = el('div',{class:'gallery-edit'})
@@ -378,18 +387,42 @@ function productForm(p){
       el('button',{class:'gbtn x', title:'Quitar', onclick:onRemove},'✕')
     )
   }
-  function renderGallery(){
+  function render(){
     galWrap.innerHTML=''
     gallery.forEach((url,i)=> galWrap.append(
       gthumb(imgSrc(url), i===0,
-        ()=>{ gallery.splice(i,1); renderGallery() },
-        i===0?null:()=>{ gallery.unshift(gallery.splice(i,1)[0]); renderGallery() })
+        ()=>{ gallery.splice(i,1); render() },
+        i===0?null:()=>{ gallery.unshift(gallery.splice(i,1)[0]); render() })
     ))
     newFiles.forEach((fobj,i)=> galWrap.append(
-      gthumb(fobj.url, false, ()=>{ URL.revokeObjectURL(fobj.url); newFiles.splice(i,1); renderGallery() }, null)
+      gthumb(fobj.url, false, ()=>{ URL.revokeObjectURL(fobj.url); newFiles.splice(i,1); render() }, null)
     ))
     if(!gallery.length && !newFiles.length) galWrap.append(el('div',{class:'hint'},'Sin imágenes todavía. Agregá una o varias.'))
   }
+  fileInput.addEventListener('change',()=>{
+    [...fileInput.files].forEach(fl=> newFiles.push({ file:fl, url:URL.createObjectURL(fl) }))
+    fileInput.value=''
+    render()
+  })
+  render()
+  const node = el('div',{},
+    el('label',{},'Imágenes'),
+    galWrap,
+    fileInput,
+    el('div',{class:'hint'},'Podés elegir varias a la vez. La primera es la portada (★ para cambiarla). Se suben a Storage al guardar.')
+  )
+  async function commit(folder){
+    const uploaded=[]
+    for(const fobj of newFiles){ const u=await uploadImage(fobj.file,folder); if(u) uploaded.push(u) }
+    const images=[...gallery, ...uploaded]
+    return { images, cover: images[0]||'' }
+  }
+  return { node, commit }
+}
+
+function productForm(p){
+  const isNew=!p; p=p||{ variants:['Única'], stock:true, cat:(CATS_CACHE[0]?.key||'') }
+  const galEditor = makeGalleryEditor((Array.isArray(p.images) && p.images.length) ? p.images : (p.img_url ? [p.img_url] : []))
 
   const f = (id,label,val,type='text',ph='')=>el('div',{},el('label',{},label), type==='textarea'
     ? el('textarea',{id,placeholder:ph},val??'')
@@ -421,12 +454,7 @@ function productForm(p){
         f('f_variants','Variantes (separadas por coma)',(p.variants||[]).join(', '),'text','Única'),
         f('f_tag','Etiqueta',p.tag,'text','Nuevo / Destacado')
       ),
-      el('div',{},
-        el('label',{},'Imágenes'),
-        galWrap,
-        fileInput,
-        el('div',{class:'hint'},'Podés elegir varias a la vez. La primera es la portada (★ para cambiarla). Se suben a Storage al guardar.')
-      ),
+      galEditor.node,
       f('f_desc','Descripción',p.description,'textarea','Descripción del producto…'),
       el('div',{class:'row'},
         el('div',{class:'chk'},el('input',{type:'checkbox',id:'f_stock',checked:p.stock?'':null}),el('label',{for:'f_stock'},'En stock')),
@@ -443,12 +471,6 @@ function productForm(p){
       )
     )
   )
-  fileInput.addEventListener('change',()=>{
-    [...fileInput.files].forEach(fl=> newFiles.push({ file:fl, url:URL.createObjectURL(fl) }))
-    fileInput.value=''  // permite volver a elegir el mismo archivo
-    renderGallery()
-  })
-  renderGallery()
   openForm(form)
 
   async function save(){
@@ -460,11 +482,7 @@ function productForm(p){
     const id  = isNew ? sku.toLowerCase() : p.id
     const btn=$('#saveBtn',form); btn.disabled=true; btn.innerHTML='<span class="spin"></span>'
     try{
-      // Sube los archivos nuevos y arma la galería final (orden: guardadas + nuevas).
-      const uploaded=[]
-      for(const fobj of newFiles){ const u=await uploadImage(fobj.file,'productos'); if(u) uploaded.push(u) }
-      const images=[...gallery, ...uploaded]
-      const cover=images[0]||''
+      const { images, cover } = await galEditor.commit('productos')
       const row={
         id, sku, name, line:$('#f_line',form).value.trim(),
         cat, price:milesVal($('#f_price',form)),
@@ -492,6 +510,7 @@ async function renderConjuntos(){
   const list=el('div',{class:'list'}); view.append(list)
   const { data, error } = await sb.from('conjuntos').select('*, conjunto_items(*)').order('orden')
   if(error){ list.append(el('div',{class:'empty'},'Error: '+error.message)); return }
+  CONJUNTOS_CACHE = data||[]
   if(!data.length){ list.append(el('div',{class:'empty'},'Sin conjuntos.')); return }
   data.forEach(c=>{
     list.append(el('div',{class:'item'},
@@ -511,10 +530,7 @@ async function renderConjuntos(){
 
 function conjForm(c){
   const isNew=!c; c=c||{ conjunto_items:[] }
-  let uploadedUrl=c.img_url||''
-  const fileInput=el('input',{type:'file',accept:'image/*'})
-  const preview=el('img',{class:'imgprev'})
-  if(uploadedUrl){ preview.src=imgSrc(uploadedUrl); preview.style.display='block' }
+  const galEditor = makeGalleryEditor((Array.isArray(c.images) && c.images.length) ? c.images : (c.img_url ? [c.img_url] : []))
   const itemsWrap=el('div',{class:'items-edit'})
   const addItemRow=(name='',price='')=>{
     const r=el('div',{class:'ir'},
@@ -531,19 +547,17 @@ function conjForm(c){
   const form=el('div',{class:'form'},
     el('h3',{}, isNew?'Nuevo conjunto':'Editar conjunto'),
     el('div',{class:'grid'},
+      isNew ? null : el('div',{class:'hint',style:'margin:0'}, 'ID: '+c.id),
       el('div',{class:'row'},
-        el('div',{},el('label',{},'ID'),el('input',{id:'c_id',value:c.id||'',placeholder:'ej. conj-baiana',disabled:isNew?null:''})),
-        f('c_name','Nombre',c.name,'text','Conjunto Grummet')
+        f('c_name','Nombre',c.name,'text','Conjunto Grummet'),
+        f('c_pieces','Piezas (texto)',c.pieces,'text','Cadena + Pulsera')
       ),
       el('div',{class:'row'},
-        f('c_pieces','Piezas (texto)',c.pieces,'text','Cadena + Pulsera'),
-        f('c_line','Línea',c.line,'text','Vemar Signature')
+        f('c_line','Línea',c.line,'text','Vemar Signature'),
+        moneyField('c_price','Precio del conjunto (Gs)',c.price)
       ),
-      el('div',{class:'row'},
-        moneyField('c_price','Precio del conjunto (Gs)',c.price),
-        f('c_material','Material',c.material,'text','Oro laminado 18k')
-      ),
-      el('div',{},el('label',{},'Imagen'),fileInput,el('div',{class:'hint'},'Se sube a Storage al guardar. Vacío = conservar actual.'),preview),
+      f('c_material','Material',c.material,'text','Oro laminado 18k'),
+      galEditor.node,
       f('c_desc','Descripción',c.description,'textarea'),
       el('div',{},
         el('label',{},'Piezas incluidas (nombre + precio individual)'),
@@ -560,17 +574,17 @@ function conjForm(c){
       )
     )
   )
-  fileInput.addEventListener('change',()=>{const fl=fileInput.files[0];if(fl){preview.src=URL.createObjectURL(fl);preview.style.display='block'}})
   openForm(form)
 
   async function save(){
-    const id=$('#c_id',form).value.trim(), name=$('#c_name',form).value.trim()
-    if(!id||!name){ toast('ID y nombre son obligatorios.',true); return }
+    const name=$('#c_name',form).value.trim()
+    if(!name){ toast('El nombre es obligatorio.',true); return }
+    const id = isNew ? genConjId(name) : c.id   // ID automático en creación
     const btn=$('#saveC',form); btn.disabled=true; btn.innerHTML='<span class="spin"></span>'
     try{
-      const up=await uploadImage(fileInput.files[0],'conjuntos'); if(up) uploadedUrl=up
+      const { images, cover } = await galEditor.commit('conjuntos')
       const row={ id, name, pieces:$('#c_pieces',form).value.trim(), line:$('#c_line',form).value.trim(),
-        price:milesVal($('#c_price',form)), img_url:uploadedUrl, material:$('#c_material',form).value.trim(),
+        price:milesVal($('#c_price',form)), img_url:cover, images, material:$('#c_material',form).value.trim(),
         description:$('#c_desc',form).value.trim(), orden:parseInt($('#c_orden',form).value||'0',10) }
       let e1=(await sb.from('conjuntos').upsert(row)).error; if(e1) throw e1
       // Regenerar piezas
